@@ -142,6 +142,19 @@ public class CustomDiceCommandMockTest {
     }
 
     @Test
+    void roll_diceEvaluator_missingPermission() {
+        CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
+        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false, null)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null);
+        ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, false);
+        ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("1_button");
+        buttonEvent.setPermissionCheck("Missing MESSAGE_SEND");
+
+        underTest.handleComponentInteractEvent(buttonEvent).block();
+
+        expect.toMatchSnapshot(buttonEvent.getSortedActions());
+    }
+
+    @Test
     void roll_diceEvaluator_full_german() {
         CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
         CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false, null)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.GERMAN, null, null);

@@ -107,6 +107,13 @@ de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.roll_diceEvalu
 ]
 
 
+de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.roll_diceEvaluator_missingPermission=[
+  [
+    "reply: Missing MESSAGE_SEND"
+  ]
+]
+
+
 de.janno.discord.bot.command.customDice.CustomDiceCommandMockTest.roll_diceEvaluator_onlyDice_multiResult=[
   [
     "acknowledge",

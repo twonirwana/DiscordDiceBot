@@ -6,12 +6,11 @@ import de.janno.discord.connector.api.MessageState;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NonNull;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.ParallelFlux;
-
 
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -19,6 +18,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static de.janno.discord.connector.api.BottomCustomIdUtils.CUSTOM_ID_DELIMITER;
 
+@Data
 public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
 
     public static final long CHANNEL_ID = 1L;
@@ -27,15 +27,13 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     private final String customId;
     private final long massageId;
     private final AtomicLong messageIdCounter;
-    @Getter
     private final List<String> actions = new ArrayList<>();
     private final Set<Long> pinnedMessageIds;
     private final String invokingUser;
     private final EmbedOrMessageDefinition eventMessage;
-    @Getter
     private final List<EmbedOrMessageDefinition> sendMessages = new ArrayList<>();
-    @Getter
     private List<ComponentRowDefinition> editedComponentRowDefinition;
+    private String permissionCheck = null;
 
     public ButtonEventAdaptorMock(String commandId, String buttonValue, UUID configUUID, AtomicLong messageIdCounter, Set<Long> pinnedMessageIds) {
         this(commandId, buttonValue, configUUID, messageIdCounter, pinnedMessageIds, "invokingUser");
@@ -148,7 +146,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
 
     @Override
     public @NonNull Optional<String> checkPermissions(Long answerTargetChannelId, @NonNull Locale userLocale) {
-        return Optional.empty();
+        return Optional.ofNullable(permissionCheck);
     }
 
     @Override
