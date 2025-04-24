@@ -9,6 +9,7 @@ import lombok.Value;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+import java.util.Optional;
 
 @Value
 @Builder
@@ -58,10 +59,8 @@ public class DropdownDefinition implements ComponentDefinition {
             Preconditions.checkArgument(emoji == null || EmojiHelper.isEmoji(emoji), "invalid emoji: " + emoji);
             Preconditions.checkArgument(value.length() <= 100, String.format("value '%s' is to long", value));
             Preconditions.checkArgument(!Strings.isNullOrEmpty(value), "value is empty");
-            Preconditions.checkArgument(label == null ||label.length() <= 100, String.format("label '%s' is to long", label));
             Preconditions.checkArgument(description == null || description.length() <= 100, String.format("description '%s' is to long", description));
-
-            this.label = label;
+            this.label = Optional.of(label).map(s -> StringUtils.abbreviate(s.replace("\n", " "), 100)).orElse(null);
             this.value = value;
             this.description = description;
             this.isDefault = isDefault;

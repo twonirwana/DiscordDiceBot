@@ -186,6 +186,31 @@ public class CustomParameterCommandMockTest {
     }
 
     @Test
+    void slash_dropdown_longNameAndLongLabel() {
+        CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
+
+        SlashEventAdaptorMock slashEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("start")
+                .option(CommandInteractionOption.builder()
+                        .name("expression")
+                        .stringValue("{aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:1/2@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa}+{aaaaaaaaaaaaaaaaaaaa}")
+                        .build())
+                .option(CommandInteractionOption.builder()
+                        .name("input_type")
+                        .stringValue("dropdown")
+                        .build())
+                .build()));
+        underTest.handleSlashCommandEvent(slashEvent, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
+
+        expect.scenario("event1").toMatchSnapshot(slashEvent.getSortedActions());
+
+        Optional<ButtonEventAdaptorMock> buttonEventAdaptorMock = slashEvent.getFirstButtonEventMockOfLastButtonMessage();
+        assertThat(buttonEventAdaptorMock).isPresent();
+        underTest.handleComponentInteractEvent(buttonEventAdaptorMock.get()).block();
+        expect.scenario("event2").toMatchSnapshot(buttonEventAdaptorMock.get().getSortedActions());
+    }
+
+    @Test
     void slash_start_directRoll() {
         CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(
                 (min, max) -> max)
@@ -278,7 +303,7 @@ public class CustomParameterCommandMockTest {
         CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
-        CustomParameterConfig config = new CustomParameterConfig(null, "{dice:d4/d['-','0','1']@Fate}+{bonus:1<=>10}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null,null , CustomParameterConfig.InputType.button);
+        CustomParameterConfig config = new CustomParameterConfig(null, "{dice:d4/d['-','0','1']@Fate}+{bonus:1<=>10}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button);
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("id2");
