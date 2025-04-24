@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.hash.Hashing;
 import de.janno.discord.bot.BotEmojiUtil;
 import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.command.*;
@@ -29,6 +30,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -282,7 +284,19 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         if (inputType == CustomParameterConfig.InputType.button_legacy) {
             return "id%d".formatted(index);
         }
-        return "%s-id%d".formatted(parameterName, index);
+
+        return "%s-id%d".formatted(parameterNameId(parameterName), index);
+    }
+
+    private static String parameterNameId(String name) {
+        //the button id (with command name + UUID) need to be under 100 characters
+        if (name.length() > 25) {
+            String hash = Hashing.murmur3_32_fixed()
+                    .hashString(name, StandardCharsets.UTF_8)
+                    .toString();
+            return name.substring(0, 20) + hash;
+        }
+        return name;
     }
 
     @VisibleForTesting
@@ -649,12 +663,12 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         List<ComponentRowDefinition> dropdowns = config.getParameters().stream()
                 .map(p -> ComponentRowDefinition.builder()
                         .componentDefinition(DropdownDefinition.builder()
-                                .id(p.getName())
+                                .id(BottomCustomIdUtils.createButtonCustomId(getCommandId(), parameterNameId(p.getName()), configUUID))
                                 .options(p.getParameterOptions().stream()
                                         .map(b -> {
                                             final BotEmojiUtil.LabelAndEmoji labelAndEmoji = BotEmojiUtil.splitLabel(b.label());
                                             return DropdownDefinition.DropdownOption.builder()
-                                                    .value(BottomCustomIdUtils.createButtonCustomId(getCommandId(), b.id(), configUUID))
+                                                    .value(BottomCustomIdUtils.createButtonCustomId(getCommandId(), b.id(), configUUID)) //b.id to long?
                                                     .label(labelAndEmoji.labelWithoutLeadingEmoji())
                                                     .emoji(labelAndEmoji.emoji())
                                                     .build();
