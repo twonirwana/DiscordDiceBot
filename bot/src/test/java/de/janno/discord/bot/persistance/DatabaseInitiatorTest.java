@@ -1,17 +1,34 @@
 package de.janno.discord.bot.persistance;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class DatabaseInitiatorTest {
+
+    @AfterAll
+    static void cleanup() throws IOException {
+        try (Stream<Path> stream = Files.list(Paths.get("").toAbsolutePath())) {
+            List<Path> files = stream.filter(Files::isRegularFile)
+                    .filter(path -> path.getFileName().toString().startsWith(DatabaseInitiator.BACKUP_FILE_PREFIX))
+                    .toList();
+            for (Path file : files) {
+                Files.delete(file);
+            }
+        }
+    }
 
     @Test
     void applyAllMigrations() {

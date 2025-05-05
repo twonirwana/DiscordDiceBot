@@ -14,6 +14,7 @@
     <logger name="net.dv8tion.jda.internal.handle.EventCache" level="INFO"/>
     <logger name="net.dv8tion.jda.internal.entities.EntityBuilder" level="INFO"/>
     <logger name="net.dv8tion.jda.api.JDA" level="INFO"/>
+    <logger name="io.micrometer.core.instrument.MeterRegistry" level="INFO"/>
 
     <!-- Display the logs in your console with the following format -->
     <!-- You can learn more about this here: https://logback.qos.ch/manual/layouts.html#ClassicPatternLayout -->
