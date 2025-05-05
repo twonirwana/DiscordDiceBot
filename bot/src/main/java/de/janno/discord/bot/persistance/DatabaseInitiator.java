@@ -32,6 +32,7 @@ import static java.time.temporal.ChronoField.*;
 @Slf4j
 public class DatabaseInitiator {
 
+    public static final String BACKUP_FILE_PREFIX = "applied_backup_";
     private final static List<String> MIGRATION_FILES = ImmutableList.<String>builder()
             .add("1_base.sql")
             .add("2_configTable.sql")
@@ -86,7 +87,7 @@ public class DatabaseInitiator {
                 throw new RuntimeException(e);
             }
             try {
-                String backupMoveName = "applied_backup_" + LocalDateTime.now().format(DATE_TIME_FORMATTER) + ".zip";
+                String backupMoveName = BACKUP_FILE_PREFIX + LocalDateTime.now().format(DATE_TIME_FORMATTER) + ".zip";
                 Files.move(path, Path.of(backupMoveName));
                 log.info("Finished importing backup and moved to {}", backupMoveName);
             } catch (IOException e) {
@@ -94,7 +95,6 @@ public class DatabaseInitiator {
             }
         }
     }
-
 
     private static void applyMissingMigrations(List<Migration> allMigrations,
                                                List<String> alreadyAppliedMigrations,
