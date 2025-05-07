@@ -26,7 +26,7 @@ dependencies {
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.19.0")
     implementation("org.apache.xmlgraphics:batik:1.18")
     implementation("org.apache.xmlgraphics:batik-transcoder:1.19")
-    implementation("org.apache.xmlgraphics:batik-codec:1.18")
+    implementation("org.apache.xmlgraphics:batik-codec:1.19")
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.12.2")
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.12.2")
