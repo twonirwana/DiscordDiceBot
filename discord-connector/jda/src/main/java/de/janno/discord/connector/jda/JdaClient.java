@@ -1,5 +1,6 @@
 package de.janno.discord.connector.jda;
 
+import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import de.janno.discord.connector.api.*;
 import io.avaje.config.Config;
@@ -11,9 +12,11 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.ISnowflake;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.NewsChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChannel;
+import net.dv8tion.jda.api.events.channel.ChannelCreateEvent;
 import net.dv8tion.jda.api.events.guild.GuildJoinEvent;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
@@ -22,7 +25,6 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
-import net.dv8tion.jda.api.events.session.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.commands.Command;
@@ -41,6 +43,8 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 @Slf4j
@@ -51,9 +55,11 @@ public class JdaClient {
     public JdaClient(@NonNull List<SlashCommand> slashCommands,
                      @NonNull List<ComponentCommand> componentCommands,
                      @NonNull WelcomeMessageCreator welcomeMessageCreator,
-                     @NonNull Set<Long> allGuildIdsInPersistence) {
+                     @NonNull Set<Long> allGuildIdsInPersistence,
+                     @NonNull Consumer<ChildrenChannelCreationEvent> childrenChannelCreationEventConsumer) {
 
         final LocalDateTime startTime = LocalDateTime.now();
+        final Stopwatch startStopwatch = Stopwatch.createStarted();
         final Scheduler scheduler = Schedulers.boundedElastic();
         final Set<Long> botInGuildIdSet = new ConcurrentSkipListSet<>();
         final Duration timeout = Duration.of(Config.getLong("http.timeoutSec"), ChronoUnit.SECONDS);
@@ -114,22 +120,21 @@ public class JdaClient {
                             }
 
                             @Override
+                            public void onChannelCreate(@NonNull ChannelCreateEvent event) {
+                                if (Set.of(ChannelType.GUILD_PRIVATE_THREAD, ChannelType.GUILD_PUBLIC_THREAD).contains(event.getChannel().getType())) {
+                                    long childChannelId = event.getChannel().getIdLong();
+                                    long parentChannelId = event.getChannel().asThreadChannel().getParentChannel().getIdLong();
+                                    childrenChannelCreationEventConsumer.accept(new ChildrenChannelCreationEvent(childChannelId, parentChannelId));
+                                }
+                            }
+
+                            @Override
                             public void onGuildReady(@NonNull GuildReadyEvent event) {
                                 if (!botInGuildIdSet.contains(event.getGuild().getIdLong())) {
                                     log.info("Bot started with guild: name='{}', memberCount={}", event.getGuild().getName(),
                                             event.getGuild().getMemberCount());
                                     botInGuildIdSet.add(event.getGuild().getIdLong());
                                 }
-                            }
-
-                            @Override
-                            public void onReady(@NonNull ReadyEvent event) {
-                                long inactiveGuildIdCountWithConfig = allGuildIdsInPersistence.stream()
-                                        .filter(id -> !botInGuildIdSet.contains(id))
-                                        .count();
-                                log.info("Inactive guild count with config: {}", inactiveGuildIdCountWithConfig);
-                                //todo wait until all shards are ready
-                                sendMessageInNewsChannel(event.getJDA(), "Bot started and is ready");
                             }
 
                             @Override
@@ -147,7 +152,7 @@ public class JdaClient {
                                         userLocale,
                                         null);
                                 if (matchingHandler.size() != 1) {
-                                    log.error("{}: Invalid handler for {} -> {}", requester.toLogString(), event.getInteraction().getCommandId(), matchingHandler.stream().map(SlashCommand::getCommandId).toList());
+                                    log.error("{}: Invalid auto complete handler for {} -> {}", requester.toLogString(), event.getInteraction().getCommandId(), matchingHandler.stream().map(SlashCommand::getCommandId).toList());
                                 } else {
                                     Mono.just(matchingHandler.getFirst())
                                             .map(command -> command.getAutoCompleteAnswer(fromEvent(event),
@@ -190,7 +195,7 @@ public class JdaClient {
 
                                 Locale userLocale = LocaleConverter.toLocale(event.getInteraction().getUserLocale());
 
-                                //no central slash handler, therefore we set the metric here
+                                //no central slash handler, therefore, we set the metric here
                                 if (event.isFromGuild() && !event.isFromAttachedGuild()) { //has guild but it is not attached
                                     JdaMetrics.userInstallSlashCommand();
                                 }
@@ -202,7 +207,7 @@ public class JdaClient {
                                         userLocale,
                                         null);
                                 if (matchingHandler.size() != 1) {
-                                    log.error("{}: Invalid handler for {} -> {}", requester.toLogString(), event.getInteraction().getCommandId(), matchingHandler.stream().map(SlashCommand::getCommandId).toList());
+                                    log.error("{}: Invalid slash handler for {} -> {}", requester.toLogString(), event.getInteraction().getCommandId(), matchingHandler.stream().map(SlashCommand::getCommandId).toList());
                                 } else {
                                     Mono.just(matchingHandler.getFirst())
                                             .flatMap(command -> {
@@ -253,29 +258,51 @@ public class JdaClient {
         ShardManager shardManager = shardManagerBuilder.build();
         JdaMetrics.startGuildCountGauge(botInGuildIdSet);
 
+        Stopwatch waitingForShards = Stopwatch.createStarted();
+        //we need to wait twice because only after the first wait we have the correct number of shards
         shardManager.getShards().forEach(jda -> {
             try {
                 jda.awaitReady();
-                JdaMetrics.startGatewayResponseTimeGauge(jda);
-                JdaMetrics.startUserCacheGauge(jda);
-                JdaMetrics.startShardCountGauge(jda);
-                JdaMetrics.startTextChannelCacheGauge(jda);
-                JdaMetrics.startGuildCacheGauge(jda);
-                JdaMetrics.startRestLatencyGauge(jda);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         });
 
+
+        final List<JDA> shards = shardManager.getShards();
+        shards.forEach(jda -> {
+            try {
+                jda.awaitReady();
+                log.info("ShardId={}: finished jda ready", jda.getShardInfo().getShardString());
+                JdaMetrics.startGatewayResponseTimeGauge(jda);
+                JdaMetrics.startUserCacheGauge(jda);
+                JdaMetrics.startTextChannelCacheGauge(jda);
+                JdaMetrics.startGuildCacheGauge(jda);
+                JdaMetrics.startRestLatencyGauge(jda);
+                long inactiveGuildIdCountWithConfig = allGuildIdsInPersistence.stream()
+                        .filter(id -> !botInGuildIdSet.contains(id))
+                        .count();
+                log.info("Inactive guild count with config: {}", inactiveGuildIdCountWithConfig);
+
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        JdaMetrics.startShardCountGauge(shardManager.getShardsTotal());
+
+        log.info("Bot startup took: {}ms, waited for Shards: {}ms", startStopwatch.elapsed(TimeUnit.MILLISECONDS), waitingForShards.elapsed(TimeUnit.MILLISECONDS));
+        shards.forEach(jda -> sendMessageInNewsChannel(jda, "Bot started and is ready"));
+
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            shardManager.getShards().forEach(jda -> sendMessageInNewsChannel(jda, "Bot shutdown started"));
-            shardManager.getShards().parallelStream().forEach(JdaClient::shutdown);
+            shards.forEach(jda -> sendMessageInNewsChannel(jda, "Bot shutdown started"));
+            shards.parallelStream().forEach(JdaClient::shutdown);
         }));
 
         boolean disableCommandUpdate = Config.getBool("disableCommandUpdate", false);
         SlashCommandRegistry.builder()
                 .addSlashCommands(slashCommands)
-                .registerSlashCommands(shardManager.getShards().getFirst(), disableCommandUpdate);
+                .registerSlashCommands(shards.getFirst(), disableCommandUpdate);
     }
 
     private static void onComponentEvent(final String customId, GenericComponentInteractionCreateEvent event, List<ComponentCommand> componentCommands, Scheduler scheduler) {
@@ -295,7 +322,7 @@ public class JdaClient {
                 userLocale,
                 BottomCustomIdUtils.getConfigUUIDFromCustomId(customId).orElse(null));
         if (matchingHandler.size() != 1) {
-            log.error("{}: Invalid handler for {} -> {}", requester.toLogString(), customId, matchingHandler.stream().map(ComponentCommand::getCommandId).toList());
+            log.error("{}: Invalid component handler for {} -> {}", requester.toLogString(), customId, matchingHandler.stream().map(ComponentCommand::getCommandId).toList());
         } else {
             Mono.just(matchingHandler.getFirst())
                     .flatMap(command -> {
@@ -333,7 +360,7 @@ public class JdaClient {
             // Allow some seconds for remaining requests to finish
             if (!jda.awaitShutdown(Duration.ofSeconds(shutdownWaitTimeSec))) { // returns true if shutdown is graceful, false if timeout exceeded
                 log.warn("ShardId={}: shutdown took more then {}sec", jda.getShardInfo().getShardString(), shutdownWaitTimeSec);
-                jda.shutdownNow(); // Cancel all remaining requests, and stop thread-pools
+                jda.shutdownNow(); // Cancel all remaining requests and stop thread-pools
                 boolean finishWithoutTimeout = jda.awaitShutdown(Duration.ofSeconds(shutdownWaitTimeSec)); // Wait until shutdown is complete (10 sec)
                 if (!finishWithoutTimeout) {
                     log.warn("ShardId={}: shutdown now took more then {}sec", jda.getShardInfo().getShardString(), shutdownWaitTimeSec);

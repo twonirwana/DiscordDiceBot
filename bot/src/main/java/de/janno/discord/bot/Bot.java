@@ -87,7 +87,8 @@ public class Bot {
                         starterCommand
                 ),
                 starterCommand.getWelcomeMessage(),
-                allGuildIdsInPersistence);
+                allGuildIdsInPersistence,
+                persistenceManager::copyChannelConfig);
     }
 
 }
