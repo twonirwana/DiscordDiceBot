@@ -1,5 +1,7 @@
 package de.janno.discord.bot.persistance;
 
+import de.janno.discord.connector.api.ChildrenChannelCreationEvent;
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -279,5 +281,55 @@ class PersistenceManagerImplTest {
         assertThat(res.stream().map(SavedNamedConfigId::name)).containsExactly("name1", "name2", "name3");
 
     }
+
+    @Test
+    void testCopyChannelConfig_noConfig() {
+        underTest.saveChannelConfig(new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, 3L, "testCommand", "testConfigClass", "configClass", "name1"));
+
+        underTest.copyChannelConfig(new ChildrenChannelCreationEvent(4L, 3L));
+
+        assertThat(underTest.getChannelConfig(3L, "testConfigClass")).isEmpty();
+        assertThat(underTest.getChannelConfig(4L, "testConfigClass")).isEmpty();
+    }
+
+    @Test
+    void testCopyChannelConfig_copyConfig() {
+        underTest.saveChannelConfig(new ChannelConfigDTO(UUID.randomUUID(), 1L, 2L, 0L, "testCommand", "testConfigClass", "configClass", "name"));
+
+        ChannelConfigDTO config1 = new ChannelConfigDTO(UUID.randomUUID(), 1L, 3L, 1L, "testCommand1", "testConfigClass1", "configClass1", "name1");
+        ChannelConfigDTO config2 = new ChannelConfigDTO(UUID.randomUUID(), 1L, 3L, null, "testCommand2", "testConfigClass2", "configClass2", "name2");
+        underTest.saveChannelConfig(config1);
+        underTest.saveChannelConfig(config2);
+
+        underTest.copyChannelConfig(new ChildrenChannelCreationEvent(4L, 3L));
+
+        Optional<ChannelConfigDTO> copied1 = underTest.getUserChannelConfig(4L, 1L, "testConfigClass1");
+        Optional<ChannelConfigDTO> copied2 = underTest.getChannelConfig(4L, "testConfigClass2");
+
+        assertThat(copied1).isPresent();
+        SoftAssertions.assertSoftly(a -> {
+            a.assertThat(copied1.get().getConfigUUID()).isNotNull().isNotEqualTo(config1.getConfigUUID());
+            a.assertThat(copied1.get().getGuildId()).isEqualTo(1L);
+            a.assertThat(copied1.get().getChannelId()).isEqualTo(4L);
+            a.assertThat(copied1.get().getCommandId()).isEqualTo("testCommand1");
+            a.assertThat(copied1.get().getConfigClassId()).isEqualTo("testConfigClass1");
+            a.assertThat(copied1.get().getConfig()).isEqualTo("configClass1");
+            a.assertThat(copied1.get().getName()).isEqualTo("name1");
+            a.assertThat(copied1.get().getUserId()).isEqualTo(1L);
+        });
+        assertThat(copied2).isPresent();
+
+        SoftAssertions.assertSoftly(a -> {
+            a.assertThat(copied2.get().getConfigUUID()).isNotNull().isNotEqualTo(config2.getConfigUUID());
+            a.assertThat(copied2.get().getGuildId()).isEqualTo(1L);
+            a.assertThat(copied2.get().getChannelId()).isEqualTo(4L);
+            a.assertThat(copied2.get().getCommandId()).isEqualTo("testCommand2");
+            a.assertThat(copied2.get().getConfigClassId()).isEqualTo("testConfigClass2");
+            a.assertThat(copied2.get().getConfig()).isEqualTo("configClass2");
+            a.assertThat(copied2.get().getName()).isEqualTo("name2");
+            a.assertThat(copied2.get().getUserId()).isNull();
+        });
+    }
+
 
 }

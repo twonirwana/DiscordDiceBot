@@ -596,7 +596,9 @@ The output can be configured with the `channel_config` command.
 [#_channel_config]
 === Channel Config
 
-This command is used create a channel specific configuration.
+This command is used create a channel-specific configuration.
+If a channel config exists in a channel where a thread is created, then the configuration, at that point in time, will be copied into the new thread.
+
 It is possible to configure alias and the output for the direct rolls:
 
 ==== Direct Roll Config
