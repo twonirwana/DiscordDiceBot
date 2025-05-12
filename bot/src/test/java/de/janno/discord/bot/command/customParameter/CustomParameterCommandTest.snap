@@ -1,3 +1,489 @@
+de.janno.discord.bot.command.customParameter.CustomParameterCommandTest.configSerialization=[
+  {
+    "configUUID": "00000000-0000-0000-0000-000000000000",
+    "guildId": 1,
+    "channelId": 2,
+    "commandId": "custom_parameter",
+    "configClassId": "CustomParameterConfig",
+    "config": "---\nanswerTargetChannelId: 123\nbaseExpression: \"{n}d{s}\"\nanswerFormatType: \"full\"\nanswerInteractionType: \"none\"\nconfigLocale: \"de\"\ncallStarterConfigAfterFinish: \"00000000-1000-0000-0000-000000000000\"\nname: \"RollName\"\ninputType: \"button\"\ndiceStyleAndColor:\n  diceImageStyle: \"polyhedral_alies_v2\"\n  configuredDefaultColor: \"blue_and_silver\"\n",
+    "name": "RollName",
+    "creationUserId": 0
+  }
+]
+
+
+de.janno.discord.bot.command.customParameter.CustomParameterCommandTest.getCommandDefinition=[
+  {
+    "name": "custom_parameter",
+    "description": "Fill custom parameter of a given dice expression and roll it when all parameter are provided",
+    "nameLocales": [ ],
+    "descriptionLocales": [
+      {
+        "locale": "de",
+        "description": "Fülle benutzerdefinierte Parameter eines Würfelausdrucks"
+      },
+      {
+        "locale": "pt_BR",
+        "description": "Preencha um parâmetro personalizado de uma formula e role-o quando os parâmetros forem fornecidos"
+      },
+      {
+        "locale": "fr",
+        "description": "Remplir les paramètres personnalisés d'une expression cubique donnée"
+      }
+    ],
+    "options": [
+      {
+        "type": "SUB_COMMAND",
+        "name": "start",
+        "nameLocales": [ ],
+        "description": "Fill custom parameter of a given dice expression and roll it when all parameter are provided",
+        "descriptionLocales": [
+          {
+            "locale": "de",
+            "description": "Fülle benutzerdefinierte Parameter eines Würfelausdrucks"
+          },
+          {
+            "locale": "pt_BR",
+            "description": "Preencha um parâmetro personalizado de uma formula e role-o quando os parâmetros forem fornecidos"
+          },
+          {
+            "locale": "fr",
+            "description": "Remplir les paramètres personnalisés d'une expression cubique donnée"
+          }
+        ],
+        "required": false,
+        "choices": [ ],
+        "options": [
+          {
+            "type": "STRING",
+            "name": "expression",
+            "nameLocales": [ ],
+            "description": "Dice expression with parameters in {}",
+            "descriptionLocales": [
+              {
+                "locale": "de",
+                "description": "Würfelausdruck mit Parametern in {}"
+              },
+              {
+                "locale": "pt_BR",
+                "description": "Fórmula de rolagens com parâmetros em {}"
+              },
+              {
+                "locale": "fr",
+                "description": "Expression de dés avec des paramètres dans {}"
+              }
+            ],
+            "required": true,
+            "choices": [ ],
+            "options": [ ],
+            "autoComplete": false
+          },
+          {
+            "type": "STRING",
+            "name": "input_type",
+            "nameLocales": [ ],
+            "description": "Change the input type, default are buttons",
+            "descriptionLocales": [
+              {
+                "locale": "de",
+                "description": "Ändere die Eingabe Art, der Standard sind Buttons"
+              },
+              {
+                "locale": "pt_BR",
+                "description": "Altere o tipo de entrada; o padrão são botões"
+              },
+              {
+                "locale": "fr",
+                "description": "Modifier le type d'entrée, par défaut les boutons"
+              }
+            ],
+            "required": false,
+            "choices": [
+              {
+                "name": "button",
+                "value": "button",
+                "nameLocales": [ ]
+              },
+              {
+                "name": "dropdown",
+                "value": "dropdown",
+                "nameLocales": [ ]
+              }
+            ],
+            "options": [ ],
+            "autoComplete": false
+          },
+          {
+            "type": "CHANNEL",
+            "name": "target_channel",
+            "nameLocales": [ ],
+            "description": "Another channel where the answer will be given",
+            "descriptionLocales": [
+              {
+                "locale": "de",
+                "description": "Ein anderer Kanal in der die Nachricht gesendet wird"
+              },
+              {
+                "locale": "pt_BR",
+                "description": "Outro canal onde o resultado será mostrado"
+              },
+              {
+                "locale": "fr",
+                "description": "Autre canal où la réponse sera donnée"
+              }
+            ],
+            "required": false,
+            "choices": [ ],
+            "options": [ ],
+            "autoComplete": false
+          },
+          {
+            "type": "STRING",
+            "name": "answer_format",
+            "nameLocales": [ ],
+            "description": "How the answer will be displayed",
+            "descriptionLocales": [
+              {
+                "locale": "de",
+                "description": "Wie die Antwort formatiert wird"
+              },
+              {
+                "locale": "pt_BR",
+                "description": "Como o resultado será exibido"
+              },
+              {
+                "locale": "fr",
+                "description": "Comment la réponse sera affichée"
+              }
+            ],
+            "required": false,
+            "choices": [
+              {
+                "name": "full",
+                "value": "full",
+                "nameLocales": [ ]
+              },
+              {
+                "name": "without_expression",
+                "value": "without_expression",
+                "nameLocales": [ ]
+              },
+              {
+                "name": "only_result",
+                "value": "only_result",
+                "nameLocales": [ ]
+              },
+              {
+                "name": "only_dice",
+                "value": "only_dice",
+                "nameLocales": [ ]
+              },
+              {
+                "name": "compact",
+                "value": "compact",
+                "nameLocales": [ ]
+              },
+              {
+                "name": "minimal",
+                "value": "minimal",
+                "nameLocales": [ ]
+              }
+            ],
+            "options": [ ],
+            "autoComplete": false
+          },
+          {
+            "type": "STRING",
+            "name": "dice_image_style",
+            "nameLocales": [ ],
+            "description": "If and in what style the dice throw should be shown as image",
+            "descriptionLocales": [
+              {
+                "locale": "de",
+                "description": "Ob und in welchen Stil Würfelbilder gezeigt werden"
+              },
+              {
+                "locale": "pt_BR",
+                "description": "Se os dados devem ser mostrados como imagens e em qual estilo"
+              },
+              {
+                "locale": "fr",
+                "description": "Si et dans quel style le lancer de dés doit être montré comme une image"
+              }
+            ],
+            "required": false,
+            "choices": [
+              {
+                "name": "none",
+                "value": "none",
+                "nameLocales": [
+                  {
+                    "locale": "pt_BR",
+                    "choice": "nenhum"
+                  }
+                ]
+              },
+              {
+                "name": "polyhedral_3d",
+                "value": "polyhedral_3d",
+                "nameLocales": [ ]
+              },
+              {
+                "name": "polyhedral_alies_v2",
+                "value": "polyhedral_alies_v2",
+                "nameLocales": [ ]
+              },
+              {
+                "name": "polyhedral_knots",
+                "value": "polyhedral_knots",
+                "nameLocales": [ ]
+              },
+              {
+                "name": "polyhedral_RdD",
+                "value": "polyhedral_RdD",
+                "nameLocales": [ ]
+              },
+              {
+                "name": "fate",
+                "value": "fate",
+                "nameLocales": [ ]
+              },
+              {
+                "name": "d6_dots",
+                "value": "d6_dots",
+                "nameLocales": [ ]
+              },
+              {
+                "name": "expanse",
+                "value": "expanse",
+                "nameLocales": [ ]
+              },
+              {
+                "name": "d6_marvel",
+                "value": "d6_marvel",
+                "nameLocales": [ ]
+              },
+              {
+                "name": "d6_marvel_v2",
+                "value": "d6_marvel_v2",
+                "nameLocales": [ ]
+              },
+              {
+                "name": "polyhedral_2d",
+                "value": "polyhedral_2d",
+                "nameLocales": [ ]
+              },
+              {
+                "name": "polyhedral_alies_v1",
+                "value": "polyhedral_alies_v1",
+                "nameLocales": [ ]
+              }
+            ],
+            "options": [ ],
+            "autoComplete": false
+          },
+          {
+            "type": "STRING",
+            "name": "dice_image_color",
+            "nameLocales": [ ],
+            "description": "The default color option. Can be influenced by the `col` operator",
+            "descriptionLocales": [
+              {
+                "locale": "de",
+                "description": "Die Standardfarbe, kann mit noch mit `col` beeinflusst werden."
+              },
+              {
+                "locale": "pt_BR",
+                "description": "A opção de cor padrão. Pode ser influenciada pelo operador `col`"
+              },
+              {
+                "locale": "fr",
+                "description": "L'option de couleur par défaut. Peut être influencée par l'opérateur `col`."
+              }
+            ],
+            "required": false,
+            "choices": [ ],
+            "options": [ ],
+            "autoComplete": true
+          },
+          {
+            "type": "STRING",
+            "name": "language",
+            "nameLocales": [ ],
+            "description": "The language of the bot messages",
+            "descriptionLocales": [
+              {
+                "locale": "de",
+                "description": "Die Sprach des Bots"
+              },
+              {
+                "locale": "pt_BR",
+                "description": "O idioma da mensagem do bot"
+              },
+              {
+                "locale": "fr",
+                "description": "La langue des messages du robot"
+              }
+            ],
+            "required": false,
+            "choices": [
+              {
+                "name": "English",
+                "value": "en",
+                "nameLocales": [
+                  {
+                    "locale": "de",
+                    "choice": "Englisch"
+                  },
+                  {
+                    "locale": "pt_BR",
+                    "choice": "Inglês"
+                  },
+                  {
+                    "locale": "fr",
+                    "choice": "Anglais"
+                  }
+                ]
+              },
+              {
+                "name": "German",
+                "value": "de",
+                "nameLocales": [
+                  {
+                    "locale": "de",
+                    "choice": "Deutsch"
+                  },
+                  {
+                    "locale": "pt_BR",
+                    "choice": "Alemão"
+                  },
+                  {
+                    "locale": "fr",
+                    "choice": "Allemand"
+                  }
+                ]
+              },
+              {
+                "name": "Portuguese (Brazil)",
+                "value": "pt_BR",
+                "nameLocales": [
+                  {
+                    "locale": "de",
+                    "choice": "Brasilianisches Portugiesisch"
+                  },
+                  {
+                    "locale": "pt_BR",
+                    "choice": "Português Brasileiro"
+                  },
+                  {
+                    "locale": "fr",
+                    "choice": "Portugais du Brésil"
+                  }
+                ]
+              },
+              {
+                "name": "French",
+                "value": "fr",
+                "nameLocales": [
+                  {
+                    "locale": "de",
+                    "choice": "Französisch"
+                  },
+                  {
+                    "locale": "pt_BR",
+                    "choice": "Francês"
+                  },
+                  {
+                    "locale": "fr",
+                    "choice": "Français"
+                  }
+                ]
+              }
+            ],
+            "options": [ ],
+            "autoComplete": false
+          },
+          {
+            "type": "STRING",
+            "name": "answer_interaction",
+            "nameLocales": [ ],
+            "description": "If the answer provides interaction options like rerolls",
+            "descriptionLocales": [ ],
+            "required": false,
+            "choices": [
+              {
+                "name": "none",
+                "value": "none",
+                "nameLocales": [ ]
+              },
+              {
+                "name": "reroll",
+                "value": "reroll",
+                "nameLocales": [ ]
+              }
+            ],
+            "options": [ ],
+            "autoComplete": false
+          },
+          {
+            "type": "STRING",
+            "name": "name",
+            "nameLocales": [ ],
+            "description": "A name to reuse the command with starter or quickstart command",
+            "descriptionLocales": [
+              {
+                "locale": "de",
+                "description": "Ein Name zur Wiederverwendung des Befehls mit dem starter oder quickstart Befehl"
+              },
+              {
+                "locale": "pt_BR",
+                "description": "Um nome para reutilizar o comando com o comando starter ou quickstart"
+              },
+              {
+                "locale": "fr",
+                "description": "Un nom pour réutiliser la commande avec la commande starter ou quickstart"
+              }
+            ],
+            "required": false,
+            "choices": [ ],
+            "options": [ ],
+            "autoComplete": false
+          }
+        ],
+        "autoComplete": false
+      },
+      {
+        "type": "SUB_COMMAND",
+        "name": "help",
+        "nameLocales": [ ],
+        "description": "Get help for `/custom_parameter`",
+        "descriptionLocales": [
+          {
+            "locale": "de",
+            "description": "Hilfe für `/custom_parameter`"
+          },
+          {
+            "locale": "pt_BR",
+            "description": "Consiga ajuda para `/custom_parameter`"
+          },
+          {
+            "locale": "fr",
+            "description": "Obtenir de l'aide pour `/custom_parameter`"
+          }
+        ],
+        "required": false,
+        "choices": [ ],
+        "options": [ ],
+        "autoComplete": false
+      }
+    ],
+    "integrationTypes": [
+      "GUILD_INSTALL"
+    ]
+  }
+]
+
+
 de.janno.discord.bot.command.customParameter.CustomParameterCommandTest.getHelpMessage=[
   {
     "descriptionOrContent": "Create buttons to fill dice expression with parameter variables in the format `{parameter_name}`. \n```\n| Name                | Notation  | Example            |\r\n|---------------------|-----------|--------------------|\r\n| Regular Dice        | d         | d6, 3d6            |\r\n| Custom Dice         | d[x,y,...]| 3d[Head,Tail]      |\r\n| Exploding Dice      | d!        | 4d!6               |\r\n| Exploding Add Dice  | d!!       | 4d!!6              |\r\n| Keep Highest        | k         | 3d6k2              |\r\n| Keep Lowest         | l         | 3d6l2              |\r\n| Sum                 | =         | 3d6=               |\r\n| Add to List         | +         | 3d6+2d12           |\r\n| From-To List        | ...       | (-10...10)         |\r\n| Concatenate         | _         | 3d6 _ 'dmg'        |\r\n| Negative add to List| -         | 3d6-2d12 or -2d6   |\r\n| Decimal Divide      | //        | 2/6                |\r\n| Divide              | /         | 12/6               |\r\n| Multiply            | *         | 12*d6              |\r\n| Modulo              | mod       | d6 mod 2           |\r\n| Equal Filter        | ==        | 3d6==3             |\r\n| Greater Then Filter | >         | 3d6>3              |\r\n| Lesser Then Filter  | <         | 3d6<3              |\r\n| Greater Equal Filter| >=        | 3d6>=3             |\r\n| Lesser Equal Filter | <=        | 3d6<=3             |\r\n| Lesser Equal Filter | <=        | 3d6<=3             |\r\n| Count               | c         | 3d6<3c             |\r\n| Multiple Rolls      | ,         | 1d6,2d10           |\r\n| Repeat              | x         | 3x2d6              |\r\n| Repeat List         | r         | 3r2d6              |\r\n| Reroll              | rr        | 3d10 rr 1          |\r\n| Equal               | =?        | d6=?6              |\r\n| Greater             | >?        | d6>?5              |\r\n| Greater Equal       | >=?       | d6>=?5             |\r\n| Lower               | <?        | d6<?4              |\r\n| Lower Equal         | <=?       | d6<=?4             |\r\n| In                  | in        | d6 in [1/3/5]      |\r\n| And                 | &&        | d6>?1 && d6<5      |\r\n| Or                  | ||        | d6>?1 || d6<5      |\r\n| Negate              | !         | !d6>?1             |\r\n| Color               | col       | d6 col 'red'       |\r\n| Tag                 | tag       | d6 tag 'marked'    |\r\n| Brackets            | ()        | (2d4=)d6           |\r\n| Text                | ''        | 'Damage ' + d6     |\r\n| Sort asc            | asc()     | asc(10d10)         |\r\n| Sort desc           | desc()    | desc(10d10)        |\r\n| Min                 | min()     | min(3d4, 8)        |\r\n| Max                 | max()     | max(3d4, 8)        |\r\n| Chancel             | chancel() | chancel(8d10,10,1) |\r\n| Replace             | replace() | replace(6d10,1,2)  |\r\n| Color On            | colorOn() | colorOn(d6,6,'red')|\r\n| Explode             | exp()     | exp(d6,1,2)        |\r\n| If                  | if()      | if(d6=?6,'Y','N')  |\r\n| Group Count         | groupC()  | groupC(20d6)       |\r\n| Concatenate         | concat()  | concat('Att:',d20) |\r\n| Value               | val()     | val('$1',10d10)    |\r\n| Round               | round()   | round(1.2,'UP')    |\r\n\n```",
@@ -22,4 +508,9 @@ de.janno.discord.bot.command.customParameter.CustomParameterCommandTest.getHelpM
     "type": "EMBED",
     "userReference": false
   }
+]
+
+
+de.janno.discord.bot.command.customParameter.CustomParameterCommandTest.getId=[
+  "custom_parameter"
 ]
