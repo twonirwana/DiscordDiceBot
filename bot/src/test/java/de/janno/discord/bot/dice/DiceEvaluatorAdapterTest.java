@@ -1,6 +1,7 @@
 package de.janno.discord.bot.dice;
 
 import de.janno.evaluator.dice.ExpressionPosition;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -25,6 +26,14 @@ class DiceEvaluatorAdapterTest {
     void getErrorLocationString(String expression, ExpressionPosition position, String expected) {
         String res = DiceEvaluatorAdapter.getErrorLocationString(expression, position);
         assertThat(res).isEqualTo(expected);
+    }
+
+    @Test
+    void getHelpMaxLineLength() {
+        //longer lines will result in line breaks in the embed help message and ruin the formating
+        DiceEvaluatorAdapter.getHelp().lines()
+                .forEach(l -> assertThat(l).hasSizeLessThanOrEqualTo(56));
+
     }
 
 }
