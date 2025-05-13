@@ -47,6 +47,7 @@ public class BotMetrics {
     private final static String METRIC_USE_ALIAS_PREFIX = "useAlias";
     private final static String METRIC_ANSWER_FORMAT_PREFIX = "answerFormat";
     private final static String METRIC_PINNED_BUTTON_EVENT_PREFIX = "pinnedButtonEvent";
+    private final static String METRIC_COPY_CHANNEL_CONFIG_PREFIX = "copyChannelConfig";
     private final static String COMMAND_TAG = "command";
     private final static String UUID_USAGE_TAG = "uuidUsage";
     private final static String CACHE_TAG = "cache";
@@ -230,6 +231,10 @@ public class BotMetrics {
 
     public static void incrementPinnedButtonMetricCounter() {
         globalRegistry.counter(METRIC_PREFIX + METRIC_PINNED_BUTTON_EVENT_PREFIX).increment();
+    }
+
+    public static void copyChannelConfigs(long count) {
+        globalRegistry.counter(METRIC_PREFIX + METRIC_COPY_CHANNEL_CONFIG_PREFIX).increment(count);
     }
 
     public enum CacheTag {

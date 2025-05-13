@@ -475,6 +475,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
                 preparedStatement.setObject(3, event.getParentChannelId());
                 long count = preparedStatement.executeUpdate();
                 if (count > 0) {
+                    BotMetrics.copyChannelConfigs(count);
                     log.info("Copied {} channel configs to child channel", count);
                 }
             }
