@@ -47,8 +47,8 @@ public class JdaMetrics {
                 .register(Metrics.globalRegistry);
     }
 
-    public static void startShardCountGauge(JDA discordApi) {
-        Gauge.builder(METRIC_PREFIX + "totalShardCount", () -> discordApi.getShardInfo().getShardTotal())
+    public static void startShardCountGauge(int shardTotalCount) {
+        Gauge.builder(METRIC_PREFIX + "totalShardCount", () -> shardTotalCount)
                 .register(Metrics.globalRegistry);
     }
 

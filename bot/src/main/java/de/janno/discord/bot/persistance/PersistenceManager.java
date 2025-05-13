@@ -1,5 +1,6 @@
 package de.janno.discord.bot.persistance;
 
+import de.janno.discord.connector.api.ChildrenChannelCreationEvent;
 import lombok.NonNull;
 
 import java.time.LocalDateTime;
@@ -64,4 +65,6 @@ public interface PersistenceManager {
     List<SavedNamedConfigId> getLastUsedNamedCommandsOfUserAndGuild(long userId, Long guildId);
 
     List<String> getNamedCommandsChannel(long channelId);
+
+    void copyChannelConfig(@NonNull ChildrenChannelCreationEvent event);
 }

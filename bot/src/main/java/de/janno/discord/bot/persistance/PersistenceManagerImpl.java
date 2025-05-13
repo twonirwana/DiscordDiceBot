@@ -6,6 +6,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import de.janno.discord.bot.BotMetrics;
+import de.janno.discord.connector.api.ChildrenChannelCreationEvent;
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.Tag;
 import lombok.NonNull;
@@ -457,6 +458,31 @@ public class PersistenceManagerImpl implements PersistenceManager {
             throw new RuntimeException(e);
         }
         BotMetrics.databaseTimer("saveChannelConfig", stopwatch.elapsed());
+    }
+
+    @Override
+    public void copyChannelConfig(@NonNull ChildrenChannelCreationEvent event) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        try (Connection con = databaseConnector.getConnection()) {
+            try (PreparedStatement preparedStatement =
+                         con.prepareStatement("""
+                                 INSERT INTO CHANNEL_CONFIG(CONFIG_ID, GUILD_ID, CHANNEL_ID, USER_ID, COMMAND_ID, CONFIG_CLASS_ID, CONFIG, CONFIG_NAME, CREATION_DATE)
+                                  select  RANDOM_UUID(), ch.GUILD_ID, ?, ch.USER_ID, ch.COMMAND_ID, ch.CONFIG_CLASS_ID, ch.CONFIG, ch.CONFIG_NAME, ?
+                                  from CHANNEL_CONFIG ch where CHANNEL_ID = ?
+                                 """)) {
+                preparedStatement.setObject(1, event.getChildrenChannelId());
+                preparedStatement.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+                preparedStatement.setObject(3, event.getParentChannelId());
+                long count = preparedStatement.executeUpdate();
+                if (count > 0) {
+                    BotMetrics.copyChannelConfigs(count);
+                    log.info("Copied {} channel configs to child channel", count);
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        BotMetrics.databaseTimer("copyChannelConfig", stopwatch.elapsed());
     }
 
     @Override
