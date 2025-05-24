@@ -74,6 +74,11 @@ de.janno.discord.bot.command.directRoll.AliasRollCommandTest.testHelp[de]=[
         "name": "Discord Server für Hilfe und Neuigkeiten",
         "value": "https://discord.gg/e43BsqKpFr",
         "inline": false
+      },
+      {
+        "name": "Spendiere mir einen Kaffee",
+        "value": "https://ko-fi.com/2nirwana",
+        "inline": false
       }
     ],
     "componentRowDefinitions": [ ],
@@ -105,6 +110,11 @@ de.janno.discord.bot.command.directRoll.AliasRollCommandTest.testHelp[en]=[
       {
         "name": "Discord Server for News, Help and Feature Requests",
         "value": "https://discord.gg/e43BsqKpFr",
+        "inline": false
+      },
+      {
+        "name": "Buy me a coffee",
+        "value": "https://ko-fi.com/2nirwana",
         "inline": false
       }
     ],
@@ -138,6 +148,11 @@ de.janno.discord.bot.command.directRoll.AliasRollCommandTest.testHelp[fr]=[
         "name": "Serveur Discord pour l'aide et les nouvelles",
         "value": "https://discord.gg/e43BsqKpFr",
         "inline": false
+      },
+      {
+        "name": "Offre-moi un café",
+        "value": "https://ko-fi.com/2nirwana",
+        "inline": false
       }
     ],
     "componentRowDefinitions": [ ],
@@ -169,6 +184,11 @@ de.janno.discord.bot.command.directRoll.AliasRollCommandTest.testHelp[pt_BR]=[
       {
         "name": "Servidor do Discord Server para ajuda e notícias (inglês)",
         "value": "https://discord.gg/e43BsqKpFr",
+        "inline": false
+      },
+      {
+        "name": "Me paga um café",
+        "value": "https://ko-fi.com/2nirwana",
         "inline": false
       }
     ],

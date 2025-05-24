@@ -24,7 +24,6 @@ import de.janno.discord.connector.api.slash.CommandInteractionOption;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
-
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
@@ -34,6 +33,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, SumCustomSetStateDataV2> {
     public static final String COMMAND_NAME = "sum_custom_set";
+    public static final String CONFIG_TYPE_ID = "SumCustomSetConfig";
     static final String BUTTONS_COMMAND_OPTIONS_NAME = "buttons";
     static final String ALWAYS_SUM_RESULTS_COMMAND_OPTIONS_NAME = "always_sum_result";
     static final String HIDE_EXPRESSION_IN_ANSWER_OPTIONS_NAME = "hide_expression_in_answer";
@@ -43,8 +43,6 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
     private static final String NO_ACTION = "no action";
     private static final String CLEAR_BUTTON_ID = "clear";
     private static final String BACK_BUTTON_ID = "back";
-
-    public static final String CONFIG_TYPE_ID = "SumCustomSetConfig";
     private static final String STATE_DATA_TYPE_ID = "SumCustomSetStateDataV2";
     private static final String STATE_DATA_TYPE_LEGACY_ID = "SumCustomSetStateData";
     private final static Pattern ENDS_WITH_DOUBLE_SEMICOLUMN_PATTERN = Pattern.compile(".*;\\s*;\\s*$", Pattern.DOTALL);
@@ -139,6 +137,7 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
                 .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.example.field.name", userLocale), I18n.getMessage("sum_custom_set.help.example.field.value", userLocale), false))
                 .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.documentation.field.name", userLocale), I18n.getMessage("help.documentation.field.value", userLocale), false))
                 .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.discord.server.field.name", userLocale), I18n.getMessage("help.discord.server.field.value", userLocale), false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.discord.support.field.name", userLocale), I18n.getMessage("help.discord.support.field.value", userLocale), false))
                 .build();
     }
 

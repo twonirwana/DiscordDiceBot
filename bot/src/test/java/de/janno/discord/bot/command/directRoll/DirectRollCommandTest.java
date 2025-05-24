@@ -117,6 +117,7 @@ class DirectRollCommandTest {
                 .field(new EmbedOrMessageDefinition.Field("Example", "`/r expression: 1d6@Damage`", false))
                 .field(new EmbedOrMessageDefinition.Field("Full documentation", "https://github.com/twonirwana/DiscordDiceBot", false))
                 .field(new EmbedOrMessageDefinition.Field("Discord Server for News, Help and Feature Requests", "https://discord.gg/e43BsqKpFr", false))
+                .field(new EmbedOrMessageDefinition.Field("Buy me a coffee", "https://ko-fi.com/2nirwana", false))
                 .build(), true);
 
         verify(slashEventAdaptor, never()).getChannelId();
