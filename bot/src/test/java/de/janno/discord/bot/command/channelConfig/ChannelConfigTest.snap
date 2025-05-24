@@ -232,6 +232,30 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
             "choices": [ ],
             "options": [ ],
             "autoComplete": false
+          },
+          {
+            "type": "CHANNEL",
+            "name": "channel",
+            "nameLocales": [ ],
+            "description": "Specifies the channel where the command will be applied. Default is the current channel.",
+            "descriptionLocales": [
+              {
+                "locale": "de",
+                "description": "Gibt den Kanal an, auf den der Befehl angewendet wird. Standard ist der aktuelle Kanal."
+              },
+              {
+                "locale": "pt_BR",
+                "description": "Especifica o canal onde o comando será aplicado. O padrão é o canal atual."
+              },
+              {
+                "locale": "fr",
+                "description": "Spécifie le canal sur lequel la commande sera appliquée. Par défaut, le canal actuel est utilisé."
+              }
+            ],
+            "required": false,
+            "choices": [ ],
+            "options": [ ],
+            "autoComplete": false
           }
         ],
         "autoComplete": false
@@ -257,7 +281,32 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
         ],
         "required": false,
         "choices": [ ],
-        "options": [ ],
+        "options": [
+          {
+            "type": "CHANNEL",
+            "name": "channel",
+            "nameLocales": [ ],
+            "description": "Specifies the channel where the command will be applied. Default is the current channel.",
+            "descriptionLocales": [
+              {
+                "locale": "de",
+                "description": "Gibt den Kanal an, auf den der Befehl angewendet wird. Standard ist der aktuelle Kanal."
+              },
+              {
+                "locale": "pt_BR",
+                "description": "Especifica o canal onde o comando será aplicado. O padrão é o canal atual."
+              },
+              {
+                "locale": "fr",
+                "description": "Spécifie le canal sur lequel la commande sera appliquée. Par défaut, le canal actuel est utilisé."
+              }
+            ],
+            "required": false,
+            "choices": [ ],
+            "options": [ ],
+            "autoComplete": false
+          }
+        ],
         "autoComplete": false
       },
       {
@@ -421,6 +470,30 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
                 ],
                 "options": [ ],
                 "autoComplete": false
+              },
+              {
+                "type": "CHANNEL",
+                "name": "channel",
+                "nameLocales": [ ],
+                "description": "Specifies the channel where the command will be applied. Default is the current channel.",
+                "descriptionLocales": [
+                  {
+                    "locale": "de",
+                    "description": "Gibt den Kanal an, auf den der Befehl angewendet wird. Standard ist der aktuelle Kanal."
+                  },
+                  {
+                    "locale": "pt_BR",
+                    "description": "Especifica o canal onde o comando será aplicado. O padrão é o canal atual."
+                  },
+                  {
+                    "locale": "fr",
+                    "description": "Spécifie le canal sur lequel la commande sera appliquée. Par défaut, le canal actuel est utilisé."
+                  }
+                ],
+                "required": false,
+                "choices": [ ],
+                "options": [ ],
+                "autoComplete": false
               }
             ],
             "autoComplete": false
@@ -505,6 +578,30 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
                 "choices": [ ],
                 "options": [ ],
                 "autoComplete": true
+              },
+              {
+                "type": "CHANNEL",
+                "name": "channel",
+                "nameLocales": [ ],
+                "description": "Specifies the channel where the command will be applied. Default is the current channel.",
+                "descriptionLocales": [
+                  {
+                    "locale": "de",
+                    "description": "Gibt den Kanal an, auf den der Befehl angewendet wird. Standard ist der aktuelle Kanal."
+                  },
+                  {
+                    "locale": "pt_BR",
+                    "description": "Especifica o canal onde o comando será aplicado. O padrão é o canal atual."
+                  },
+                  {
+                    "locale": "fr",
+                    "description": "Spécifie le canal sur lequel la commande sera appliquée. Par défaut, le canal actuel est utilisé."
+                  }
+                ],
+                "required": false,
+                "choices": [ ],
+                "options": [ ],
+                "autoComplete": false
               }
             ],
             "autoComplete": false
@@ -565,6 +662,30 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
                 ],
                 "options": [ ],
                 "autoComplete": false
+              },
+              {
+                "type": "CHANNEL",
+                "name": "channel",
+                "nameLocales": [ ],
+                "description": "Specifies the channel where the command will be applied. Default is the current channel.",
+                "descriptionLocales": [
+                  {
+                    "locale": "de",
+                    "description": "Gibt den Kanal an, auf den der Befehl angewendet wird. Standard ist der aktuelle Kanal."
+                  },
+                  {
+                    "locale": "pt_BR",
+                    "description": "Especifica o canal onde o comando será aplicado. O padrão é o canal atual."
+                  },
+                  {
+                    "locale": "fr",
+                    "description": "Spécifie le canal sur lequel la commande sera appliquée. Par défaut, le canal actuel est utilisé."
+                  }
+                ],
+                "required": false,
+                "choices": [ ],
+                "options": [ ],
+                "autoComplete": false
               }
             ],
             "autoComplete": false
@@ -623,6 +744,30 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
                     "nameLocales": [ ]
                   }
                 ],
+                "options": [ ],
+                "autoComplete": false
+              },
+              {
+                "type": "CHANNEL",
+                "name": "channel",
+                "nameLocales": [ ],
+                "description": "Specifies the channel where the command will be applied. Default is the current channel.",
+                "descriptionLocales": [
+                  {
+                    "locale": "de",
+                    "description": "Gibt den Kanal an, auf den der Befehl angewendet wird. Standard ist der aktuelle Kanal."
+                  },
+                  {
+                    "locale": "pt_BR",
+                    "description": "Especifica o canal onde o comando será aplicado. O padrão é o canal atual."
+                  },
+                  {
+                    "locale": "fr",
+                    "description": "Spécifie le canal sur lequel la commande sera appliquée. Par défaut, le canal actuel est utilisé."
+                  }
+                ],
+                "required": false,
+                "choices": [ ],
                 "options": [ ],
                 "autoComplete": false
               }
@@ -707,6 +852,30 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
                     "nameLocales": [ ]
                   }
                 ],
+                "options": [ ],
+                "autoComplete": false
+              },
+              {
+                "type": "CHANNEL",
+                "name": "channel",
+                "nameLocales": [ ],
+                "description": "Specifies the channel where the command will be applied. Default is the current channel.",
+                "descriptionLocales": [
+                  {
+                    "locale": "de",
+                    "description": "Gibt den Kanal an, auf den der Befehl angewendet wird. Standard ist der aktuelle Kanal."
+                  },
+                  {
+                    "locale": "pt_BR",
+                    "description": "Especifica o canal onde o comando será aplicado. O padrão é o canal atual."
+                  },
+                  {
+                    "locale": "fr",
+                    "description": "Spécifie le canal sur lequel la commande sera appliquée. Par défaut, le canal actuel est utilisé."
+                  }
+                ],
+                "required": false,
+                "choices": [ ],
                 "options": [ ],
                 "autoComplete": false
               }

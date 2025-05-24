@@ -1,7 +1,7 @@
 = Button Dice Roller
 :toc: macro
 
-https://www.gnu.org/licenses/agpl-3.0[image:https://img.shields.io/badge/License-AGPL_v3-blue.svg[License: AGPL v3]] 
+https://www.gnu.org/licenses/agpl-3.0[image:https://img.shields.io/badge/License-AGPL_v3-blue.svg[License: AGPL v3]]
 https://codecov.io/gh/twonirwana/DiscordDiceBot[image:https://codecov.io/gh/twonirwana/DiscordDiceBot/branch/main/graph/badge.svg?token=OLH7L312D7[codecov]]
 image:https://img.shields.io/github/actions/workflow/status/twonirwana/DiscordDiceBot/codeCov.yml?branch=main[GitHub Workflow Status]
 image:https://img.shields.io/discord/898657305883725834[link="https://discord.gg/e43BsqKpFr"]
@@ -598,8 +598,13 @@ The output can be configured with the `channel_config` command.
 [#_channel_config]
 === Channel Config
 
-This command is used create a channel-specific configuration.
+This command is used to create a channel-specific configuration.
 If a channel config exists in a channel where a thread is created, then the configuration, at that point in time, will be copied into the new thread.
+
+All channel config commands have a optional `channel` option.
+If the `channel` option is kept empty then the command will be applied to the current channel.
+If a channel is specified in the `channel` option then the command will be applied in the specified channel.
+This is especially useful if the `channel` option is a forum because then all posts all new posts in the forum get a copy of the channel configuration/alias.
 
 It is possible to configure alias and the output for the direct rolls:
 
