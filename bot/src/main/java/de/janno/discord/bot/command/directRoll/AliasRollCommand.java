@@ -86,6 +86,7 @@ public class AliasRollCommand extends DirectRollCommand {
                 .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.example.field.name", userLocale), I18n.getMessage("a.help.example.expression.value", userLocale), false))
                 .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.documentation.field.name", userLocale), I18n.getMessage("help.documentation.field.value", userLocale), false))
                 .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.discord.server.field.name", userLocale), I18n.getMessage("help.discord.server.field.value", userLocale), false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.discord.support.field.name", userLocale), I18n.getMessage("help.discord.support.field.value", userLocale), false))
                 .build();
     }
 }

@@ -32,7 +32,6 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
-
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -409,6 +408,7 @@ public class StarterCommand implements SlashCommand, ComponentCommand {
                 .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.example.field.name", userLocale), I18n.getMessage("starter.help.example.field.value", userLocale), false))
                 .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.documentation.field.name", userLocale), I18n.getMessage("help.documentation.field.value", userLocale), false))
                 .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.discord.server.field.name", userLocale), I18n.getMessage("help.discord.server.field.value", userLocale), false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.discord.support.field.name", userLocale), I18n.getMessage("help.discord.support.field.value", userLocale), false))
                 .build();
     }
 

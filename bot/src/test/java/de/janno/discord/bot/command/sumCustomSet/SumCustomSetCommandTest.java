@@ -3,13 +3,13 @@ package de.janno.discord.bot.command.sumCustomSet;
 import au.com.origin.snapshots.Expect;
 import au.com.origin.snapshots.junit5.SnapshotExtension;
 import de.janno.discord.bot.AnswerInteractionType;
+import de.janno.discord.bot.I18n;
 import de.janno.discord.bot.ResultImage;
 import de.janno.discord.bot.command.*;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.dice.image.DiceImageStyle;
 import de.janno.discord.bot.dice.image.DiceStyleAndColor;
 import de.janno.discord.bot.persistance.*;
-import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
@@ -54,6 +54,11 @@ class SumCustomSetCommandTest {
         );
     }
 
+    static Stream<Arguments> generateAllLocaleData() {
+        return I18n.allSupportedLanguage().stream()
+                .map(Arguments::of);
+    }
+
     @BeforeEach
     void setup() {
         underTest = new SumCustomSetCommand(persistenceManager, new CachingDiceEvaluator((minExcl, maxIncl) -> 0));
@@ -65,6 +70,13 @@ class SumCustomSetCommandTest {
         Optional<String> res = underTest.getCurrentMessageContentChange(defaultConfig, state, false);
         assertThat(res).contains(expected);
     }
+
+    @ParameterizedTest(name = "{index} locale={0}")
+    @MethodSource("generateAllLocaleData")
+    void testHelp(Locale userLocale) {
+        expect.scenario(userLocale.toString()).toMatchSnapshot(underTest.getHelpMessage(userLocale));
+    }
+
 
     @Test
     void getButtonMessageWithState_clear() {

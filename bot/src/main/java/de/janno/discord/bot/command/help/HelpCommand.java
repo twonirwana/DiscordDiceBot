@@ -44,6 +44,7 @@ public class HelpCommand implements SlashCommand {
                 .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.command.field.name", userLocale), I18n.getMessage("help.command.field.value." + context, userLocale), false))
                 .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.documentation.field.name", userLocale), I18n.getMessage("help.documentation.field.value", userLocale), false))
                 .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.discord.server.field.name", userLocale), I18n.getMessage("help.discord.server.field.value", userLocale), false))
+                .field(new EmbedOrMessageDefinition.Field(I18n.getMessage("help.discord.support.field.name", userLocale), I18n.getMessage("help.discord.support.field.value", userLocale), false))
                 .build(), true);
     }
 }
