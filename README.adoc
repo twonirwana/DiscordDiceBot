@@ -601,10 +601,10 @@ The output can be configured with the `channel_config` command.
 This command is used to create a channel-specific configuration.
 If a channel config exists in a channel where a thread is created, then the configuration, at that point in time, will be copied into the new thread.
 
-All channel config commands have a optional `channel` option.
+All channel config commands have an optional `channel` option.
 If the `channel` option is kept empty then the command will be applied to the current channel.
-If a channel is specified in the `channel` option then the command will be applied in the specified channel.
-This is especially useful if the `channel` option is a forum because then all posts all new posts in the forum get a copy of the channel configuration/alias.
+If a channel is specified in the `channel` option then the command will be applied in the specified channel and not to the current channel.
+This is especially useful if the `channel` option is a forum because then all new posts in the forum get a copy of the configuration/alias.
 
 It is possible to configure alias and the output for the direct rolls:
 
