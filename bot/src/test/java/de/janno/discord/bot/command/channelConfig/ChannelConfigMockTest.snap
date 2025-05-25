@@ -30,14 +30,15 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.autoCompleteNoS
 
 de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.channelAlias_createCreateDeleteAll[slashEvent1]=[
   [
-    "reply: `commandString`\nSaved new alias",
     "reply: `commandString`\nSaved new alias"
   ]
 ]
 
 
 de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.channelAlias_createCreateDeleteAll[slashEvent2]=[
-  [ ]
+  [
+    "reply: `commandString`\nSaved new alias"
+  ]
 ]
 
 
@@ -49,6 +50,41 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.channelAlias_cr
 
 
 de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.channelAlias_createCreateDeleteAll[slashEvent4]=[
+  [
+    "reply: `commandString`\nExisting alias:\n"
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.channelAlias_createCreateDeleteAll_otherChannel[slashEvent1]=[
+  [
+    "reply: `commandString`\nSaved new alias"
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.channelAlias_createCreateDeleteAll_otherChannel[slashEvent2]=[
+  [
+    "reply: `commandString`\nSaved new alias"
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.channelAlias_createCreateDeleteAll_otherChannel[slashEvent3]=[
+  [
+    "reply: `commandString`\nExisting alias:\n`att` -> `2d20+10`\n`dmg` -> `3d6`"
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.channelAlias_createCreateDeleteAll_otherChannel[slashEvent4]=[
+  [
+    "reply: `commandString`\nDeleted alias"
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.channelAlias_createCreateDeleteAll_otherChannel[slashEvent5]=[
   [
     "reply: `commandString`\nExisting alias:\n"
   ]
@@ -139,6 +175,27 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.saveConfigDelet
 ]
 
 
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.saveConfigDelete_otherChannel[slashEvent1]=[
+  [
+    "reply: `commandString`\nSaved direct roll channel config"
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.saveConfigDelete_otherChannel[slashEvent2]=[
+  [
+    "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=1d6 ⇒ 1, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.saveConfigDelete_otherChannel[slashEvent3]=[
+  [
+    "reply: `commandString`\nDeleted direct roll channel config"
+  ]
+]
+
+
 de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.userChannelAlias_2UserCreateAlias[slashEvent1]=[
   [
     "reply: `commandString`\nSaved new alias"
@@ -169,14 +226,15 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.userChannelAlia
 
 de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.userChannelAlias_createCreateDeleteAll[slashEvent1]=[
   [
-    "reply: `commandString`\nSaved new alias",
     "reply: `commandString`\nSaved new alias"
   ]
 ]
 
 
 de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.userChannelAlias_createCreateDeleteAll[slashEvent2]=[
-  [ ]
+  [
+    "reply: `commandString`\nSaved new alias"
+  ]
 ]
 
 
