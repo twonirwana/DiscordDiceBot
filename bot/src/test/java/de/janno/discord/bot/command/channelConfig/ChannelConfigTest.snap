@@ -261,7 +261,7 @@ de.janno.discord.bot.command.channelConfig.ChannelConfigTest.getCommandDefinitio
         "autoComplete": false
       },
       {
-        "type": "SUB_COMMAND_GROUP",
+        "type": "SUB_COMMAND",
         "name": "delete_direct_roll_config",
         "nameLocales": [ ],
         "description": "remove the current channel config",
