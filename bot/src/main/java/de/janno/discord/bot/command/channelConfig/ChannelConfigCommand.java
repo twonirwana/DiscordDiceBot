@@ -234,7 +234,7 @@ public class ChannelConfigCommand implements SlashCommand {
                         .nameLocales(I18n.allNoneEnglishMessagesNames("channel_config.option.delete_direct_roll_config.name"))
                         .description(I18n.getMessage("channel_config.option.delete_direct_roll_config.description", Locale.ENGLISH))
                         .descriptionLocales(I18n.allNoneEnglishMessagesDescriptions("channel_config.option.delete_direct_roll_config.description"))
-                        .type(CommandDefinitionOption.Type.SUB_COMMAND_GROUP)
+                        .type(CommandDefinitionOption.Type.SUB_COMMAND)
                         .option(CHANNEL_COMMAND_OPTION)
                         .build())
                 .option(CommandDefinitionOption.builder()
