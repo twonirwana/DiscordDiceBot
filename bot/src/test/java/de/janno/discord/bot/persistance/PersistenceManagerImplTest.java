@@ -1,17 +1,22 @@
 package de.janno.discord.bot.persistance;
 
+import com.google.common.base.Stopwatch;
+import com.google.common.collect.ImmutableList;
 import de.janno.discord.connector.api.ChildrenChannelCreationEvent;
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Duration;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -258,6 +263,7 @@ class PersistenceManagerImplTest {
         UUID config5 = UUID.randomUUID();
         UUID config6 = UUID.randomUUID();
         UUID config7 = UUID.randomUUID();
+        UUID config8 = UUID.randomUUID();
 
         underTest.saveMessageConfig(new MessageConfigDTO(config1, 1L, 2L, "testCommand", "testConfigClass", "configClass", "name1", 0L));
         Thread.sleep(10);
@@ -273,12 +279,98 @@ class PersistenceManagerImplTest {
         Thread.sleep(10);
         underTest.saveMessageConfig(new MessageConfigDTO(config7, 3L, 3L, "testCommand", "testConfigClass", "configClass", "name3", 0L));
         Thread.sleep(10);
-
+        underTest.saveMessageConfig(new MessageConfigDTO(UUID.randomUUID(), 3L, 3L, "testCommand", "testConfigClass", "configClass", "name4", 1L));
+        Thread.sleep(10);
+        underTest.saveMessageConfig(new MessageConfigDTO(config8, 1L, 3L, "testCommand", "testConfigClass", "configClass", "name5", 1L));
+        Thread.sleep(10);
 
         List<SavedNamedConfigId> res = underTest.getLastUsedNamedCommandsOfUserAndGuild(0L, 1L);
+        assertThat(res.stream().map(SavedNamedConfigId::id)).containsExactly(config8, config7, config4, config2);
+        assertThat(res.stream().map(SavedNamedConfigId::name)).containsExactly("name5", "name3", "name1", "name2");
+    }
 
-        assertThat(res.stream().map(SavedNamedConfigId::id)).containsExactly(config4, config2, config7);
-        assertThat(res.stream().map(SavedNamedConfigId::name)).containsExactly("name1", "name2", "name3");
+    @Test
+    void getLastUsedNamedCommandsOfUser() throws InterruptedException {
+        UUID config1 = UUID.randomUUID();
+        UUID config2 = UUID.randomUUID();
+        UUID config3 = UUID.randomUUID();
+        UUID config4 = UUID.randomUUID();
+        UUID config5 = UUID.randomUUID();
+        UUID config6 = UUID.randomUUID();
+        UUID config7 = UUID.randomUUID();
+        UUID config8 = UUID.randomUUID();
+
+        underTest.saveMessageConfig(new MessageConfigDTO(config1, 1L, 2L, "testCommand", "testConfigClass", "configClass", "name1", 0L));
+        Thread.sleep(10);
+        underTest.saveMessageConfig(new MessageConfigDTO(config2, 1L, 2L, "testCommand", "testConfigClass", "configClass", "name2", 0L));
+        Thread.sleep(10);
+        underTest.saveMessageConfig(new MessageConfigDTO(config3, 1L, 3L, "testCommand", "testConfigClass", "configClass", "name1", 0L));
+        Thread.sleep(10);
+        underTest.saveMessageConfig(new MessageConfigDTO(config4, 1L, 2L, "testCommand", "testConfigClass", "configClass", "name1", 0L));
+        Thread.sleep(10);
+        underTest.saveMessageConfig(new MessageConfigDTO(config5, 1L, 2L, "testCommand", "testConfigClass", "configClass", null, 0L));
+        Thread.sleep(10);
+        underTest.saveMessageConfig(new MessageConfigDTO(config6, 3L, 2L, "testCommand", "testConfigClass", "configClass", null, 0L));
+        Thread.sleep(10);
+        underTest.saveMessageConfig(new MessageConfigDTO(config7, 3L, 3L, "testCommand", "testConfigClass", "configClass", "name3", 0L));
+        Thread.sleep(10);
+        underTest.saveMessageConfig(new MessageConfigDTO(UUID.randomUUID(), 3L, 3L, "testCommand", "testConfigClass", "configClass", "name4", 1L));
+        Thread.sleep(10);
+        underTest.saveMessageConfig(new MessageConfigDTO(config8, 1L, 3L, "testCommand", "testConfigClass", "configClass", "name5", 1L));
+        Thread.sleep(10);
+
+        List<SavedNamedConfigId> res = underTest.getLastUsedNamedCommandsOfUserAndGuild(0L, null);
+        assertThat(res.stream().map(SavedNamedConfigId::id)).containsExactly(config7, config4, config2);
+        assertThat(res.stream().map(SavedNamedConfigId::name)).containsExactly("name3", "name1", "name2");
+    }
+
+    @Test
+    @Disabled("Only use for performance tests")
+    void getLastUsedNamedCommandsOfUserAndGuildSpeed() throws SQLException {
+        String url = "jdbc:h2:XXX;AUTO_SERVER=TRUE";
+        DatabaseConnector databaseConnector = new DatabaseConnector(url, null, null);
+        final ImmutableList.Builder<Long> resultBuilder = ImmutableList.builder();
+        try (Connection con = databaseConnector.getConnection()) {
+            try (PreparedStatement preparedStatement = con.prepareStatement("SELECT DISTINCT CREATION_USER_ID FROM MESSAGE_CONFIG MC WHERE MC.CREATION_USER_ID IS NOT NULL limit 1000")) {
+                ResultSet resultSet = preparedStatement.executeQuery();
+                while (resultSet.next()) {
+                    resultBuilder.add(resultSet.getLong("CREATION_USER_ID"));
+                }
+            }
+        }
+        List<Long> userIds = resultBuilder.build();
+        underTest = new PersistenceManagerImpl(url, null, null);
+        List<Long> guildIds = underTest.getAllGuildIds().stream().sorted().limit(1000).toList();
+        long resultCount = 0;
+
+        Random rand = new Random(0);
+
+        List<GuildUser> warmup = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            int guildIndex = rand.nextInt(guildIds.size());
+            int userIndex = rand.nextInt(guildIds.size());
+            warmup.add(new GuildUser(guildIds.get(guildIndex), userIds.get(userIndex)));
+        }
+
+
+        for (GuildUser guildUser : warmup) {
+            resultCount += underTest.getLastUsedNamedCommandsOfUserAndGuild(guildUser.userId, guildUser.guildId).size();
+        }
+
+        List<GuildUser> guildUsers = new ArrayList<>();
+        for (int i = 0; i < 1000; i++) {
+            int guildIndex = rand.nextInt(guildIds.size());
+            int userIndex = rand.nextInt(guildIds.size());
+            guildUsers.add(new GuildUser(guildIds.get(guildIndex), userIds.get(userIndex)));
+        }
+
+        Stopwatch stopwatch = Stopwatch.createStarted();
+
+        resultCount = guildUsers.stream()
+                .mapToInt(guildUser -> underTest.getLastUsedNamedCommandsOfUserAndGuild(guildUser.userId, guildUser.guildId).size())
+                .sum();
+        stopwatch.stop();
+        System.out.printf("%dms with %d results, avg: %.4fms\n", stopwatch.elapsed(TimeUnit.MILLISECONDS), resultCount, ((double) stopwatch.elapsed(TimeUnit.MILLISECONDS)) / resultCount);
 
     }
 
@@ -329,6 +421,9 @@ class PersistenceManagerImplTest {
             a.assertThat(copied2.get().getName()).isEqualTo("name2");
             a.assertThat(copied2.get().getUserId()).isNull();
         });
+    }
+
+    record GuildUser(Long guildId, Long userId) {
     }
 
 
