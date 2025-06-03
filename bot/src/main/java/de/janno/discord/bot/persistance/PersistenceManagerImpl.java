@@ -21,6 +21,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.ToDoubleFunction;
+import java.util.stream.Collectors;
 
 import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
@@ -590,60 +591,52 @@ public class PersistenceManagerImpl implements PersistenceManager {
             final String sql;
             if (guildId != null) {
                 sql = """
-                        SELECT MC.CONFIG_ID, MC.COMMAND_ID, MC.CONFIG_NAME
+                        SELECT MC.CONFIG_ID, MC.COMMAND_ID, MC.CONFIG_NAME, MC.CREATION_DATE
                         FROM MESSAGE_CONFIG MC
-                                 JOIN (SELECT MC2.COMMAND_ID, MC2.CONFIG_NAME, MAX(MC2.CREATION_DATE) AS LatestDate
-                                       FROM MESSAGE_CONFIG MC2
-                                       where (MC2.CREATION_USER_ID = ?
-                                           OR MC2.GUILD_ID = ?)
-                                         and MC2.CONFIG_NAME is not null
-                                       GROUP BY MC2.COMMAND_ID, MC2.CONFIG_NAME) Latest
-                                      ON MC.COMMAND_ID = Latest.COMMAND_ID
-                                          and mc.CONFIG_NAME = Latest.CONFIG_NAME
-                                          AND MC.CREATION_DATE = Latest.LatestDate
                         where (MC.CREATION_USER_ID = ?
                             OR MC.GUILD_ID = ?)
-                          and MC.CONFIG_NAME is not null
-                        order by MC.CONFIG_NAME;
+                          and MC.CONFIG_NAME is not null;
                         """;
             } else {
                 sql = """
-                        SELECT MC.CONFIG_ID, MC.COMMAND_ID, MC.CONFIG_NAME
+                        SELECT MC.CONFIG_ID, MC.COMMAND_ID, MC.CONFIG_NAME, MC.CREATION_DATE
                         FROM MESSAGE_CONFIG MC
-                                 JOIN (SELECT MC2.COMMAND_ID, MC2.CONFIG_NAME, MAX(MC2.CREATION_DATE) AS LatestDate
-                                       FROM MESSAGE_CONFIG MC2
-                                       where MC2.CREATION_USER_ID = ?
-                                         and MC2.CONFIG_NAME is not null
-                                       GROUP BY MC2.COMMAND_ID, MC2.CONFIG_NAME) Latest
-                                      ON MC.COMMAND_ID = Latest.COMMAND_ID
-                                          and mc.CONFIG_NAME = Latest.CONFIG_NAME
-                                          AND MC.CREATION_DATE = Latest.LatestDate
                         where MC.CREATION_USER_ID = ?
-                          and MC.CONFIG_NAME is not null
-                        order by MC.CONFIG_NAME;
+                          and MC.CONFIG_NAME is not null;
                         """;
             }
             try (PreparedStatement preparedStatement = con.prepareStatement(sql)) {
                 if (guildId != null) {
                     preparedStatement.setLong(1, userId);
                     preparedStatement.setLong(2, guildId);
-                    preparedStatement.setLong(3, userId);
-                    preparedStatement.setLong(4, guildId);
                 } else {
                     preparedStatement.setLong(1, userId);
-                    preparedStatement.setLong(2, userId);
                 }
 
                 ResultSet resultSet = preparedStatement.executeQuery();
-                List<SavedNamedConfigId> result = new ArrayList<>();
+                List<SavedNamedConfigIdCreationDate> allNamed = new ArrayList<>();
                 while (resultSet.next()) {
-                    result.add(new SavedNamedConfigId(
+                    allNamed.add(new SavedNamedConfigIdCreationDate(
                             resultSet.getObject("CONFIG_ID", UUID.class),
                             resultSet.getString("COMMAND_ID"),
-                            resultSet.getString("CONFIG_NAME")
+                            resultSet.getString("CONFIG_NAME"),
+                            resultSet.getTimestamp("CREATION_DATE")
                     ));
                 }
-                BotMetrics.databaseTimer("getNamedCommandsOfUserAndGuild", stopwatch.elapsed());
+
+                List<SavedNamedConfigId> result = allNamed.stream()
+                        .collect(Collectors.groupingBy(SavedNamedConfigIdCreationDate::name)).values().stream()
+                        .map(nl -> nl.stream().max(Comparator.comparing(SavedNamedConfigIdCreationDate::creationDate)).orElse(null))
+                        .filter(Objects::nonNull)
+                        .sorted(Comparator.comparing(SavedNamedConfigIdCreationDate::creationDate).reversed())
+                        .map(sd -> new SavedNamedConfigId(sd.id(), sd.commandId(), sd.name()))
+                        .toList();
+
+                if (guildId == null) {
+                    BotMetrics.databaseTimer("getNamedCommandsOfUser", stopwatch.elapsed());
+                } else {
+                    BotMetrics.databaseTimer("getNamedCommandsOfUserAndGuild", stopwatch.elapsed());
+                }
                 return result;
 
             }
@@ -678,5 +671,8 @@ public class PersistenceManagerImpl implements PersistenceManager {
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    private record SavedNamedConfigIdCreationDate(UUID id, String commandId, String name, Timestamp creationDate) {
     }
 }
