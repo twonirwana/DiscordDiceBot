@@ -29,7 +29,7 @@ dependencies {
     implementation("org.apache.xmlgraphics:batik-codec:1.19")
 
     testImplementation("org.junit.jupiter:junit-jupiter:5.13.0")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.13.0")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.13.1")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation(libs.assertj.core)
     testCompileOnly(libs.lombok)
