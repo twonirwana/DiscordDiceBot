@@ -50,6 +50,7 @@ public class RollAnswerConverter {
                                     .collect(ImmutableList.toImmutableList()))
                             .type(EmbedOrMessageDefinition.Type.EMBED)
                             .image(rollAnswer.getImage())
+                            .fileAltText(getRollAltText(rollAnswer))
                             .userReference(true)
                             .build();
 
@@ -65,6 +66,7 @@ public class RollAnswerConverter {
                             .shortedTitle("%s ⇒ %s".formatted(Optional.ofNullable(rollAnswer.getExpressionLabel()).orElse(rollAnswer.getExpression()), rollAnswer.getResult()))
                             .shortedDescription(description)
                             .image(rollAnswer.getImage())
+                            .fileAltText(getRollAltText(rollAnswer))
                             .userReference(true)
                             .type(EmbedOrMessageDefinition.Type.EMBED)
                             .build();
@@ -83,6 +85,7 @@ public class RollAnswerConverter {
                                     .collect(ImmutableList.toImmutableList()))
                             .type(EmbedOrMessageDefinition.Type.EMBED)
                             .image(rollAnswer.getImage())
+                            .fileAltText(getRollAltText(rollAnswer))
                             .userReference(true)
                             .build();
 
@@ -94,6 +97,7 @@ public class RollAnswerConverter {
                             .shortedDescription(description)
                             .type(EmbedOrMessageDefinition.Type.EMBED)
                             .image(rollAnswer.getImage())
+                            .fileAltText(getRollAltText(rollAnswer))
                             .userReference(true)
                             .build();
                 }
@@ -102,12 +106,13 @@ public class RollAnswerConverter {
                 if (rollAnswer.getMultiRollResults() != null) {
                     yield EmbedOrMessageDefinition.builder()
                             .shortedTitle(Optional.ofNullable(rollAnswer.getExpressionLabel()).orElse("Roll"))
-                            .shortedContent(String.valueOf(rollAnswer.getMultiRollResults().stream()
+                            .shortedContent(rollAnswer.getMultiRollResults().stream()
                                     .map(RollAnswer.RollResults::getResult)
                                     .map("**%s**"::formatted)
-                                    .collect(Collectors.joining("\n"))))
+                                    .collect(Collectors.joining("\n")))
                             .type(EmbedOrMessageDefinition.Type.EMBED)
                             .image(rollAnswer.getImage())
+                            .fileAltText(getRollAltText(rollAnswer))
                             .userReference(true)
                             .build();
 
@@ -116,6 +121,7 @@ public class RollAnswerConverter {
                             .shortedTitle("%s ⇒ %s".formatted(Optional.ofNullable(rollAnswer.getExpressionLabel()).orElse("Roll"), rollAnswer.getResult()))
                             .type(EmbedOrMessageDefinition.Type.EMBED)
                             .image(rollAnswer.getImage())
+                            .fileAltText(getRollAltText(rollAnswer))
                             .userReference(true)
                             .build();
                 }
@@ -130,6 +136,7 @@ public class RollAnswerConverter {
                             .shortedDescription(description)
                             .type(EmbedOrMessageDefinition.Type.EMBED)
                             .image(rollAnswer.getImage())
+                            .fileAltText(getRollAltText(rollAnswer))
                             .userReference(true)
                             .build();
                 } else {
@@ -139,6 +146,7 @@ public class RollAnswerConverter {
                             .shortedDescription(description)
                             .type(EmbedOrMessageDefinition.Type.EMBED)
                             .image(rollAnswer.getImage())
+                            .fileAltText(getRollAltText(rollAnswer))
                             .userReference(true)
                             .build();
                 }
@@ -202,5 +210,12 @@ public class RollAnswerConverter {
             descriptionDetails += Optional.ofNullable(rollAnswer.getRollDetails()).orElse("");
         }
         return descriptionDetails;
+    }
+
+    private static String getRollAltText(RollAnswer rollAnswer) {
+        if (rollAnswer.getMultiRollResults() != null) {
+            return rollAnswer.getMultiRollResults().stream().map(RollAnswer.RollResults::getRollDetails).collect(Collectors.joining(" - "));
+        }
+        return rollAnswer.getRollDetails();
     }
 }

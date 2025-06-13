@@ -211,12 +211,14 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
         final Supplier<InputStream> imageSupplier;
         final List<EmbedOrMessageDefinition.Field> fields;
         final String title;
+        final String fileAltText;
         if (message.getEmbeds().isEmpty()) {
             type = EmbedOrMessageDefinition.Type.MESSAGE;
             descriptionOrContent = message.getContentRaw();
             imageSupplier = null;
             fields = List.of();
             title = null;
+            fileAltText = null;
         } else {
             type = EmbedOrMessageDefinition.Type.EMBED;
             MessageEmbed embed = message.getEmbeds().getFirst();
@@ -224,6 +226,7 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
             title = embed.getTitle();
             if (embed.getImage() == null) {
                 imageSupplier = null;
+                fileAltText = null;
             } else {
                 imageSupplier = () -> Optional.ofNullable(embed.getImage().getProxy())
                         .map(AttachmentProxy::download)
@@ -236,6 +239,7 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
                             return InputStream.nullInputStream();
                         })
                         .orElse(InputStream.nullInputStream());
+                fileAltText = null; //todo jda doesn't currently provide it
             }
             fields = embed.getFields().stream()
                     .filter(f -> !Strings.isNullOrEmpty(f.getName()))
@@ -249,6 +253,7 @@ public class ButtonEventAdapterImpl extends DiscordAdapterImpl implements Button
                 .title(title)
                 .descriptionOrContent(descriptionOrContent)
                 .image(imageSupplier)
+                .fileAltText(fileAltText)
                 .fields(fields)
                 .build();
     }

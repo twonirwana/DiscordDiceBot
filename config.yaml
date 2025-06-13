@@ -9,6 +9,8 @@ shardIds:
 disableCommandUpdate: false
 welcomeMessageStartTimePlusBufferSec: 300
 shutdownWaitTimeSec: 10
+# if it is a dev/beta instance, default is false
+dev:
 db:
   url: jdbc:h2:file:./persistence/dice_config;AUTO_SERVER=TRUE;DB_CLOSE_DELAY=5
   user:
