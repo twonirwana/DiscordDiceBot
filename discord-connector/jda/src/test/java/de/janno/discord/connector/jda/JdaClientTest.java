@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.entities.channel.middleman.StandardGuildMessageChanne
 import net.dv8tion.jda.api.entities.channel.unions.ChannelUnion;
 import net.dv8tion.jda.api.entities.channel.unions.IThreadContainerUnion;
 import net.dv8tion.jda.api.events.channel.ChannelCreateEvent;
+import net.dv8tion.jda.api.managers.ApplicationManager;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -27,8 +28,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class JdaClientTest {
 
@@ -113,9 +113,22 @@ class JdaClientTest {
         when(newsChannel.sendMessage(anyString())).thenReturn(messageCreateAction);
         when(messageCreateAction.complete()).thenReturn(mock(Message.class));
         when(newsChannel.crosspostMessageById(any())).thenReturn(mock(RestAction.class));
+        ApplicationManager applicationManager = mock(ApplicationManager.class);
+        when(shard.getApplicationManager()).thenReturn(applicationManager);
+        when(applicationManager.setDescription(any())).thenReturn(applicationManager);
+        when(applicationManager.setIcon(any())).thenReturn(applicationManager);
+        when(applicationManager.setIntegrationTypeConfig(any())).thenReturn(applicationManager);
+        when(applicationManager.setTags(any())).thenReturn(applicationManager);
+        when(applicationManager.setInstallParams(any())).thenReturn(applicationManager);
 
         List<JDA> shards = JdaClient.waitingForShardStartAndSendStatus(shardManager, Set.of(), Set.of(), Stopwatch.createStarted());
 
         assertThat(shards).hasSize(2);
+        verify(applicationManager).setDescription("""
+                A visual dice roller bot that uses buttons to trigger rolls.
+                Documentation:  https://github.com/twonirwana/DiscordDiceBot
+                Help: https://discord.gg/e43BsqKpFr
+                Support: https://ko-fi.com/2nirwana""");
+        verify(applicationManager).setTags(List.of("Dice", "RPG", "Roller", "TTRPG", "D20"));
     }
 }

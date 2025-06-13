@@ -26,6 +26,7 @@ public class EmbedOrMessageDefinition {
     @NonNull
     List<Field> fields;
     Supplier<? extends InputStream> image;
+    String fileAltText;
     @Singular
     @NonNull
     List<ComponentRowDefinition> componentRowDefinitions;
@@ -36,7 +37,7 @@ public class EmbedOrMessageDefinition {
     public EmbedOrMessageDefinition(String title,
                                     String descriptionOrContent,
                                     @NonNull List<Field> fields,
-                                    Supplier<? extends InputStream> image,
+                                    Supplier<? extends InputStream> image, String fileAltText,
                                     @NonNull List<ComponentRowDefinition> componentRowDefinitions,
                                     Type type,
                                     Boolean userReference,
@@ -45,6 +46,7 @@ public class EmbedOrMessageDefinition {
         this.descriptionOrContent = descriptionOrContent;
         this.fields = fields;
         this.image = image;
+        this.fileAltText = fileAltText;
         this.componentRowDefinitions = componentRowDefinitions;
         this.type = Optional.ofNullable(type).orElse(Type.EMBED);
         this.userReference = Optional.ofNullable(userReference).orElse(false);
