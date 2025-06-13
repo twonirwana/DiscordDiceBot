@@ -113,6 +113,17 @@ class JdaClientTest {
         when(newsChannel.sendMessage(anyString())).thenReturn(messageCreateAction);
         when(messageCreateAction.complete()).thenReturn(mock(Message.class));
         when(newsChannel.crosspostMessageById(any())).thenReturn(mock(RestAction.class));
+
+
+        List<JDA> shards = JdaClient.waitingForShardStartAndSendStatus(shardManager, Set.of(), Set.of(), Stopwatch.createStarted());
+
+        assertThat(shards).hasSize(2);
+
+    }
+
+    @Test
+    void setupApplication() {
+        JDA shard = mock(JDA.class);
         ApplicationManager applicationManager = mock(ApplicationManager.class);
         when(shard.getApplicationManager()).thenReturn(applicationManager);
         when(applicationManager.setDescription(any())).thenReturn(applicationManager);
@@ -121,9 +132,8 @@ class JdaClientTest {
         when(applicationManager.setTags(any())).thenReturn(applicationManager);
         when(applicationManager.setInstallParams(any())).thenReturn(applicationManager);
 
-        List<JDA> shards = JdaClient.waitingForShardStartAndSendStatus(shardManager, Set.of(), Set.of(), Stopwatch.createStarted());
+        JdaClient.setupApplication(List.of(shard, shard));
 
-        assertThat(shards).hasSize(2);
         verify(applicationManager).setDescription("""
                 A visual dice roller bot that uses buttons to trigger rolls.
                 Documentation:  https://github.com/twonirwana/DiscordDiceBot

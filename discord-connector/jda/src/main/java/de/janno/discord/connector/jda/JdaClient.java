@@ -258,6 +258,8 @@ public class JdaClient {
 
         final List<JDA> shards = waitingForShardStartAndSendStatus(shardManager, botInGuildIdSet, allGuildIdsInPersistence, startStopwatch);
 
+        setupApplication(shards);
+
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             shards.forEach(jda -> sendMessageInNewsChannel(jda, "Bot shutdown started"));
             shards.parallelStream().forEach(JdaClient::shutdown);
@@ -269,6 +271,34 @@ public class JdaClient {
                 .registerSlashCommands(shards.getFirst(), disableCommandUpdate);
     }
 
+    @VisibleForTesting
+    static void setupApplication(List<JDA> shards) {
+        Icon icon = Config.getBool("dev", false) ? loadIcon("image/Button_bluetan_bw.png") : loadIcon("image/Button_bluetan_final.png");
+        shards.getFirst().getApplicationManager()
+                .setDescription(I18n.getMessage("discord.bot.description", Locale.ENGLISH))
+                .setIcon(icon)
+                .setIntegrationTypeConfig(Map.of(
+                        IntegrationType.GUILD_INSTALL, ApplicationManager.IntegrationTypeConfig.of(List.of("applications.commands", "bot"),
+                                List.of(Permission.MESSAGE_ATTACH_FILES,
+                                        Permission.MESSAGE_EMBED_LINKS,
+                                        Permission.MESSAGE_HISTORY,
+                                        Permission.MESSAGE_SEND,
+                                        Permission.MESSAGE_SEND_IN_THREADS)),
+                        IntegrationType.USER_INSTALL, ApplicationManager.IntegrationTypeConfig.of(List.of("applications.commands", "bot"), List.of())
+                ))
+                //missing banner
+                .setTags(Arrays.stream(I18n.getMessage("discord.bot.tags", Locale.ENGLISH).split(",")).toList())
+                .setInstallParams(ApplicationManager.IntegrationTypeConfig.of(List.of("applications.commands", "bot"),
+                        List.of(Permission.MESSAGE_ATTACH_FILES,
+                                Permission.MESSAGE_EMBED_LINKS,
+                                Permission.MESSAGE_HISTORY,
+                                Permission.MESSAGE_SEND,
+                                Permission.MESSAGE_SEND_IN_THREADS))
+                )
+                .queue(v -> log.info("update application"));
+    }
+
+    @VisibleForTesting
     static List<JDA> waitingForShardStartAndSendStatus(ShardManager shardManager,
                                                        Set<Long> botInGuildIdSet,
                                                        Set<Long> allGuildIdsInPersistence,
@@ -306,30 +336,6 @@ public class JdaClient {
         });
 
         JdaMetrics.startShardCountGauge(shardManager.getShardsTotal());
-
-        Icon icon = Config.getBool("dev", false) ? loadIcon("image/Button_bluetan_bw.png") : loadIcon("image/Button_bluetan_final.png");
-        shards.getFirst().getApplicationManager()
-                .setDescription(I18n.getMessage("discord.bot.description", Locale.ENGLISH))
-                .setIcon(icon)
-                .setIntegrationTypeConfig(Map.of(
-                        IntegrationType.GUILD_INSTALL, ApplicationManager.IntegrationTypeConfig.of(List.of("applications.commands", "bot"),
-                                List.of(Permission.MESSAGE_ATTACH_FILES,
-                                        Permission.MESSAGE_EMBED_LINKS,
-                                        Permission.MESSAGE_HISTORY,
-                                        Permission.MESSAGE_SEND,
-                                        Permission.MESSAGE_SEND_IN_THREADS)),
-                        IntegrationType.USER_INSTALL, ApplicationManager.IntegrationTypeConfig.of(List.of("applications.commands", "bot"), List.of())
-                ))
-                //missing banner
-                .setTags(Arrays.stream(I18n.getMessage("discord.bot.tags", Locale.ENGLISH).split(",")).toList())
-                .setInstallParams(ApplicationManager.IntegrationTypeConfig.of(List.of("applications.commands", "bot"),
-                        List.of(Permission.MESSAGE_ATTACH_FILES,
-                                Permission.MESSAGE_EMBED_LINKS,
-                                Permission.MESSAGE_HISTORY,
-                                Permission.MESSAGE_SEND,
-                                Permission.MESSAGE_SEND_IN_THREADS))
-                )
-                .queue(v -> log.info("update application"));
 
 
         log.info("Bot startup took: {}ms, waited for Shards: {}ms", startStopwatch.elapsed(TimeUnit.MILLISECONDS), waitingForShards.elapsed(TimeUnit.MILLISECONDS));
