@@ -61,6 +61,7 @@ The quickstart will show a user also all named commands other user have created 
 |`City of Mist`
 |`Coin Toss`
 |`Cyberpunk Red`
+|`Daggerheart`
 |`Dice Calculator`
 |`Dungeon & Dragons 5e`
 |`Dungeon & Dragons 5e Calculator`
