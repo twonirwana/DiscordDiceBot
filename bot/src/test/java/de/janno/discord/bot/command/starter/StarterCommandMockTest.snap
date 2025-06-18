@@ -1126,6 +1126,106 @@ de.janno.discord.bot.command.starter.StarterCommandMockTest.createPreset[CYBERPU
 ]
 
 
+de.janno.discord.bot.command.starter.StarterCommandMockTest.createPreset[DAGGERHEART_event1_de]=[
+  [
+    "reply: commandString",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=custom name, fields=[], componentRowDefinitions=[ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=Daggerheart, id=starter\u001E00000000-0000-0000-0001-000000000001\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.starter.StarterCommandMockTest.createPreset[DAGGERHEART_event1_en]=[
+  [
+    "reply: commandString",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=custom name, fields=[], componentRowDefinitions=[ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=Daggerheart, id=starter\u001E00000000-0000-0000-0001-000000000001\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.starter.StarterCommandMockTest.createPreset[DAGGERHEART_event1_fr]=[
+  [
+    "reply: commandString",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=custom name, fields=[], componentRowDefinitions=[ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=Daggerheart, id=starter\u001E00000000-0000-0000-0001-000000000001\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.starter.StarterCommandMockTest.createPreset[DAGGERHEART_event1_pt_BR]=[
+  [
+    "reply: commandString",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=custom name, fields=[], componentRowDefinitions=[ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=Daggerheart, id=starter\u001E00000000-0000-0000-0001-000000000001\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.starter.StarterCommandMockTest.createPreset[DAGGERHEART_event2_de]=[
+  [
+    "editMessage: message:Klick auf einen Button um zu würfeln, buttons=[ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=Duality roll, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=With advantage, id=custom_dice\u001E2_button\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=With disadvantage, id=custom_dice\u001E3_button\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null)])]"
+  ]
+]
+
+
+de.janno.discord.bot.command.starter.StarterCommandMockTest.createPreset[DAGGERHEART_event2_en]=[
+  [
+    "editMessage: message:Click on a button to roll the dice, buttons=[ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=Duality roll, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=With advantage, id=custom_dice\u001E2_button\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=With disadvantage, id=custom_dice\u001E3_button\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null)])]"
+  ]
+]
+
+
+de.janno.discord.bot.command.starter.StarterCommandMockTest.createPreset[DAGGERHEART_event2_fr]=[
+  [
+    "editMessage: message:Cliquez sur un bouton pour lancer les dés, buttons=[ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=Duality roll, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=With advantage, id=custom_dice\u001E2_button\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=With disadvantage, id=custom_dice\u001E3_button\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null)])]"
+  ]
+]
+
+
+de.janno.discord.bot.command.starter.StarterCommandMockTest.createPreset[DAGGERHEART_event2_pt_BR]=[
+  [
+    "editMessage: message:Clique em um botão para rolar os dados, buttons=[ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=Duality roll, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=With advantage, id=custom_dice\u001E2_button\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=With disadvantage, id=custom_dice\u001E3_button\u001E00000000-0000-0000-0001-000000000001, style=PRIMARY, disabled=false, emoji=null)])]"
+  ]
+]
+
+
+de.janno.discord.bot.command.starter.StarterCommandMockTest.createPreset[DAGGERHEART_event3_de]=[
+  [
+    "acknowledge",
+    "deleteMessageById: 1",
+    "sendMessage: EmbedOrMessageDefinition(title=Duality roll ⇒ 17 with Fear, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=custom name, fields=[], componentRowDefinitions=[ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=Daggerheart, id=starter\u001E00000000-0000-0000-0001-000000000001\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.starter.StarterCommandMockTest.createPreset[DAGGERHEART_event3_en]=[
+  [
+    "acknowledge",
+    "deleteMessageById: 1",
+    "sendMessage: EmbedOrMessageDefinition(title=Duality roll ⇒ 17 with Fear, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=custom name, fields=[], componentRowDefinitions=[ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=Daggerheart, id=starter\u001E00000000-0000-0000-0001-000000000001\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.starter.StarterCommandMockTest.createPreset[DAGGERHEART_event3_fr]=[
+  [
+    "acknowledge",
+    "deleteMessageById: 1",
+    "sendMessage: EmbedOrMessageDefinition(title=Duality roll ⇒ 17 with Fear, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=custom name, fields=[], componentRowDefinitions=[ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=Daggerheart, id=starter\u001E00000000-0000-0000-0001-000000000001\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.starter.StarterCommandMockTest.createPreset[DAGGERHEART_event3_pt_BR]=[
+  [
+    "acknowledge",
+    "deleteMessageById: 1",
+    "sendMessage: EmbedOrMessageDefinition(title=Duality roll ⇒ 17 with Fear, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=custom name, fields=[], componentRowDefinitions=[ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=Daggerheart, id=starter\u001E00000000-0000-0000-0001-000000000001\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
 de.janno.discord.bot.command.starter.StarterCommandMockTest.createPreset[DICE_CALCULATOR_event1_de]=[
   [
     "reply: commandString",

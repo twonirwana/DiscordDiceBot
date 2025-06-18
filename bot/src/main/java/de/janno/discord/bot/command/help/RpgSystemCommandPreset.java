@@ -237,6 +237,9 @@ public class RpgSystemCommandPreset {
                     new CustomParameterConfig(null, I18n.getMessage("rpg.system.command.preset.OTHERSCAPE.expression", userLocale), AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_RdD, DiceImageStyle.polyhedral_RdD.getDefaultColor()), userLocale, null, I18n.getMessage("rpg.system.command.preset.OTHERSCAPE.name", userLocale), CustomParameterConfig.InputType.button);
             case OTHERSCAPE_ALIAS ->
                     new AliasConfig(ChannelConfigCommand.parseStringToMultiAliasList(I18n.getMessage("rpg.system.command.preset.OTHERSCAPE_ALIAS.expression", userLocale)), I18n.getMessage("rpg.system.command.preset.OTHERSCAPE_ALIAS.name", userLocale));
+            ///custom_dice start buttons: val ('$hope', 1d12 col 'yellow_and_white'),val ('$fear', 1d12 col 'purple_and_white'),val('$result','$hope' + '$fear'=), if('$hope' >? '$fear', concat('$result', ' with Hope'), '$hope'<?'$fear', concat('$result', ' with Fear'), '$hope'=?'$fear', 'Critical')@Duality roll;; val ('$hope', 1d12 col 'yellow_and_white'),val ('$fear', 1d12 col 'purple_and_white'),val('$result','$hope' + '$fear' + 1d6 col 'green_and_white'=), if('$hope' >? '$fear', concat('$result', ' with Hope'), '$hope'<?'$fear', concat('$result', ' with Fear'), '$hope'=?'$fear', 'Critical')@With advantage; val ('$hope', 1d12 col 'yellow_and_white'),val ('$fear', 1d12 col 'purple_and_white'),val('$result','$hope' + '$fear' - 1d6 col 'grey_and_white'=), if('$hope' >? '$fear', concat('$result', ' with Hope'), '$hope'<?'$fear', concat('$result', ' with Fear'), '$hope'=?'$fear', 'Critical')@With disadvantage;
+            case DAGGERHEART ->
+                    new CustomDiceConfig(null, ButtonHelper.parseString(I18n.getMessage("rpg.system.command.preset.DAGGERHEART.expression", userLocale)), AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.polyhedral_3d, DiceImageStyle.polyhedral_RdD.getDefaultColor()), userLocale, null, I18n.getMessage("rpg.system.command.preset.DAGGERHEART.name", userLocale));
         };
     }
 
@@ -358,7 +361,8 @@ public class RpgSystemCommandPreset {
         SHADOWDARK(SumCustomSetCommand.COMMAND_NAME, SumCustomSetCommand.CONFIG_TYPE_ID),
         GHOSTBUSTERS(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
         OTHERSCAPE(CustomParameterCommand.COMMAND_NAME, CustomParameterCommand.CONFIG_TYPE_ID),
-        OTHERSCAPE_ALIAS(ChannelConfigCommand.COMMAND_NAME, AliasHelper.CHANNEL_ALIAS_CONFIG_TYPE_ID);
+        OTHERSCAPE_ALIAS(ChannelConfigCommand.COMMAND_NAME, AliasHelper.CHANNEL_ALIAS_CONFIG_TYPE_ID),
+        DAGGERHEART(CustomDiceCommand.COMMAND_NAME, CustomDiceCommand.CONFIG_TYPE_ID),;
 
         private final String commandId;
         private final String configClassType;
