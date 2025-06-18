@@ -882,6 +882,46 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString
 ]
 
 
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString_slashCommand_firstButton[firstButtonEvent:DAGGERHEART_de]=[
+  [
+    "acknowledge",
+    "deleteMessageById: 1",
+    "sendMessage: EmbedOrMessageDefinition(title=Duality roll ⇒ Critical, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Klick auf einen Button um zu würfeln, fields=[], componentRowDefinitions=[ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=Duality roll, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=With advantage, id=custom_dice\u001E2_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=With disadvantage, id=custom_dice\u001E3_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString_slashCommand_firstButton[firstButtonEvent:DAGGERHEART_en]=[
+  [
+    "acknowledge",
+    "deleteMessageById: 1",
+    "sendMessage: EmbedOrMessageDefinition(title=Duality roll ⇒ Critical, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=Duality roll, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=With advantage, id=custom_dice\u001E2_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=With disadvantage, id=custom_dice\u001E3_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString_slashCommand_firstButton[firstButtonEvent:DAGGERHEART_fr]=[
+  [
+    "acknowledge",
+    "deleteMessageById: 1",
+    "sendMessage: EmbedOrMessageDefinition(title=Duality roll ⇒ Critical, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Cliquez sur un bouton pour lancer les dés, fields=[], componentRowDefinitions=[ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=Duality roll, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=With advantage, id=custom_dice\u001E2_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=With disadvantage, id=custom_dice\u001E3_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString_slashCommand_firstButton[firstButtonEvent:DAGGERHEART_pt_BR]=[
+  [
+    "acknowledge",
+    "deleteMessageById: 1",
+    "sendMessage: EmbedOrMessageDefinition(title=Duality roll ⇒ Critical, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Clique em um botão para rolar os dados, fields=[], componentRowDefinitions=[ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=Duality roll, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=With advantage, id=custom_dice\u001E2_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=With disadvantage, id=custom_dice\u001E3_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
 de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString_slashCommand_firstButton[firstButtonEvent:DICE_CALCULATOR_de]=[
   [
     "editMessage: message:invokingUser: 7, buttons=[ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=7, id=sum_custom_set\u001E1_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=8, id=sum_custom_set\u001E2_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=9, id=sum_custom_set\u001E3_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=+, id=sum_custom_set\u001E4_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=-, id=sum_custom_set\u001E5_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=4, id=sum_custom_set\u001E6_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=5, id=sum_custom_set\u001E7_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=6, id=sum_custom_set\u001E8_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=(, id=sum_custom_set\u001E9_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=), id=sum_custom_set\u001E10_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=1, id=sum_custom_set\u001E11_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=2, id=sum_custom_set\u001E12_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=3, id=sum_custom_set\u001E13_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=d, id=sum_custom_set\u001E14_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=r, id=sum_custom_set\u001E15_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=0, id=sum_custom_set\u001E16_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=00, id=sum_custom_set\u001E17_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=d20, id=sum_custom_set\u001E18_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=k, id=sum_custom_set\u001E19_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=l, id=sum_custom_set\u001E20_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=ADV, id=sum_custom_set\u001E21_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=DIS, id=sum_custom_set\u001E22_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=Würfeln, id=sum_custom_set\u001Eroll\u001E00000000-0000-0000-0001-000000000000, style=SUCCESS, disabled=false, emoji=null), ButtonDefinition(label=Löschen, id=sum_custom_set\u001Eclear\u001E00000000-0000-0000-0001-000000000000, style=DANGER, disabled=false, emoji=null), ButtonDefinition(label=Zurück, id=sum_custom_set\u001Eback\u001E00000000-0000-0000-0001-000000000000, style=SECONDARY, disabled=false, emoji=null)])]"
@@ -2822,6 +2862,38 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString
   [
     "reply: commandString",
     "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Por favor selecione um valor para **atributo**, fields=[], componentRowDefinitions=[ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=0, id=custom_parameter\u001Eatributo-id1\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=1, id=custom_parameter\u001Eatributo-id2\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=2, id=custom_parameter\u001Eatributo-id3\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=3, id=custom_parameter\u001Eatributo-id4\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=4, id=custom_parameter\u001Eatributo-id5\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=5, id=custom_parameter\u001Eatributo-id6\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=6, id=custom_parameter\u001Eatributo-id7\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=7, id=custom_parameter\u001Eatributo-id8\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=8, id=custom_parameter\u001Eatributo-id9\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=9, id=custom_parameter\u001Eatributo-id10\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString_slashCommand_firstButton[slashCommand:DAGGERHEART_de]=[
+  [
+    "reply: commandString",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Klick auf einen Button um zu würfeln, fields=[], componentRowDefinitions=[ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=Duality roll, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=With advantage, id=custom_dice\u001E2_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=With disadvantage, id=custom_dice\u001E3_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString_slashCommand_firstButton[slashCommand:DAGGERHEART_en]=[
+  [
+    "reply: commandString",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=Duality roll, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=With advantage, id=custom_dice\u001E2_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=With disadvantage, id=custom_dice\u001E3_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString_slashCommand_firstButton[slashCommand:DAGGERHEART_fr]=[
+  [
+    "reply: commandString",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Cliquez sur un bouton pour lancer les dés, fields=[], componentRowDefinitions=[ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=Duality roll, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=With advantage, id=custom_dice\u001E2_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=With disadvantage, id=custom_dice\u001E3_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.config2CommandString_slashCommand_firstButton[slashCommand:DAGGERHEART_pt_BR]=[
+  [
+    "reply: commandString",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Clique em um botão para rolar os dados, fields=[], componentRowDefinitions=[ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=Duality roll, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=With advantage, id=custom_dice\u001E2_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=With disadvantage, id=custom_dice\u001E3_button\u001E00000000-0000-0000-0001-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
   ]
 ]
 
@@ -5162,6 +5234,58 @@ de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEv
   [
     "reply: **Cyberpunk Red:** `/custom_parameter start expression: val('$roll', 1d10) ifE('$roll', 1, '$roll'-1d10, 10, '$roll'+1d10, '$roll')+{atributo:0<=>9}+{perícia:0<=>9}= input_type: button answer_format: without_expression answer_interaction: none dice_image_style: polyhedral_3d dice_image_color: red_and_white name: Cyberpunk Red`",
     "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Por favor selecione um valor para **atributo**, fields=[], componentRowDefinitions=[ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=0, id=custom_parameter\u001Eatributo-id1\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=1, id=custom_parameter\u001Eatributo-id2\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=2, id=custom_parameter\u001Eatributo-id3\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=3, id=custom_parameter\u001Eatributo-id4\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=4, id=custom_parameter\u001Eatributo-id5\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=5, id=custom_parameter\u001Eatributo-id6\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=6, id=custom_parameter\u001Eatributo-id7\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=7, id=custom_parameter\u001Eatributo-id8\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=8, id=custom_parameter\u001Eatributo-id9\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=9, id=custom_parameter\u001Eatributo-id10\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[DAGGERHEART_alias_de]=[
+  [ ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[DAGGERHEART_alias_en]=[
+  [ ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[DAGGERHEART_alias_fr]=[
+  [ ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[DAGGERHEART_alias_pt_BR]=[
+  [ ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[DAGGERHEART_de]=[
+  [
+    "reply: **Daggerheart:** `/custom_dice start buttons: val ('$hope', 1d12 col 'yellow_and_white'),val ('$fear', 1d12 col 'purple_and_white'),val('$result','$hope' + '$fear'=), if('$hope' >? '$fear', concat('$result', ' with Hope'), '$hope'<?'$fear', concat('$result', ' with Fear'), '$hope'=?'$fear', 'Critical')@Duality roll;;val ('$hope', 1d12 col 'yellow_and_white'),val ('$fear', 1d12 col 'purple_and_white'),val('$result','$hope' + '$fear' + 1d6 col 'green_and_white'=), if('$hope' >? '$fear', concat('$result', ' with Hope'), '$hope'<?'$fear', concat('$result', ' with Fear'), '$hope'=?'$fear', 'Critical')@With advantage;val ('$hope', 1d12 col 'yellow_and_white'),val ('$fear', 1d12 col 'purple_and_white'),val('$result','$hope' + '$fear' - 1d6 col 'grey_and_white'=), if('$hope' >? '$fear', concat('$result', ' with Hope'), '$hope'<?'$fear', concat('$result', ' with Fear'), '$hope'=?'$fear', 'Critical')@With disadvantage answer_format: without_expression answer_interaction: none dice_image_style: polyhedral_3d dice_image_color: red_and_white name: Daggerheart`",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Klick auf einen Button um zu würfeln, fields=[], componentRowDefinitions=[ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=Duality roll, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=With advantage, id=custom_dice\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=With disadvantage, id=custom_dice\u001E3_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[DAGGERHEART_en]=[
+  [
+    "reply: **Daggerheart:** `/custom_dice start buttons: val ('$hope', 1d12 col 'yellow_and_white'),val ('$fear', 1d12 col 'purple_and_white'),val('$result','$hope' + '$fear'=), if('$hope' >? '$fear', concat('$result', ' with Hope'), '$hope'<?'$fear', concat('$result', ' with Fear'), '$hope'=?'$fear', 'Critical')@Duality roll;;val ('$hope', 1d12 col 'yellow_and_white'),val ('$fear', 1d12 col 'purple_and_white'),val('$result','$hope' + '$fear' + 1d6 col 'green_and_white'=), if('$hope' >? '$fear', concat('$result', ' with Hope'), '$hope'<?'$fear', concat('$result', ' with Fear'), '$hope'=?'$fear', 'Critical')@With advantage;val ('$hope', 1d12 col 'yellow_and_white'),val ('$fear', 1d12 col 'purple_and_white'),val('$result','$hope' + '$fear' - 1d6 col 'grey_and_white'=), if('$hope' >? '$fear', concat('$result', ' with Hope'), '$hope'<?'$fear', concat('$result', ' with Fear'), '$hope'=?'$fear', 'Critical')@With disadvantage answer_format: without_expression answer_interaction: none dice_image_style: polyhedral_3d dice_image_color: red_and_white name: Daggerheart`",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Click on a button to roll the dice, fields=[], componentRowDefinitions=[ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=Duality roll, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=With advantage, id=custom_dice\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=With disadvantage, id=custom_dice\u001E3_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[DAGGERHEART_fr]=[
+  [
+    "reply: **Daggerheart:** `/custom_dice start buttons: val ('$hope', 1d12 col 'yellow_and_white'),val ('$fear', 1d12 col 'purple_and_white'),val('$result','$hope' + '$fear'=), if('$hope' >? '$fear', concat('$result', ' with Hope'), '$hope'<?'$fear', concat('$result', ' with Fear'), '$hope'=?'$fear', 'Critical')@Duality roll;;val ('$hope', 1d12 col 'yellow_and_white'),val ('$fear', 1d12 col 'purple_and_white'),val('$result','$hope' + '$fear' + 1d6 col 'green_and_white'=), if('$hope' >? '$fear', concat('$result', ' with Hope'), '$hope'<?'$fear', concat('$result', ' with Fear'), '$hope'=?'$fear', 'Critical')@With advantage;val ('$hope', 1d12 col 'yellow_and_white'),val ('$fear', 1d12 col 'purple_and_white'),val('$result','$hope' + '$fear' - 1d6 col 'grey_and_white'=), if('$hope' >? '$fear', concat('$result', ' with Hope'), '$hope'<?'$fear', concat('$result', ' with Fear'), '$hope'=?'$fear', 'Critical')@With disadvantage answer_format: without_expression answer_interaction: none dice_image_style: polyhedral_3d dice_image_color: red_and_white name: Daggerheart`",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Cliquez sur un bouton pour lancer les dés, fields=[], componentRowDefinitions=[ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=Duality roll, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=With advantage, id=custom_dice\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=With disadvantage, id=custom_dice\u001E3_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
+  ]
+]
+
+
+de.janno.discord.bot.command.help.QuickstartCommandMockTest.handleSlashCommandEvent[DAGGERHEART_pt_BR]=[
+  [
+    "reply: **Daggerheart:** `/custom_dice start buttons: val ('$hope', 1d12 col 'yellow_and_white'),val ('$fear', 1d12 col 'purple_and_white'),val('$result','$hope' + '$fear'=), if('$hope' >? '$fear', concat('$result', ' with Hope'), '$hope'<?'$fear', concat('$result', ' with Fear'), '$hope'=?'$fear', 'Critical')@Duality roll;;val ('$hope', 1d12 col 'yellow_and_white'),val ('$fear', 1d12 col 'purple_and_white'),val('$result','$hope' + '$fear' + 1d6 col 'green_and_white'=), if('$hope' >? '$fear', concat('$result', ' with Hope'), '$hope'<?'$fear', concat('$result', ' with Fear'), '$hope'=?'$fear', 'Critical')@With advantage;val ('$hope', 1d12 col 'yellow_and_white'),val ('$fear', 1d12 col 'purple_and_white'),val('$result','$hope' + '$fear' - 1d6 col 'grey_and_white'=), if('$hope' >? '$fear', concat('$result', ' with Hope'), '$hope'<?'$fear', concat('$result', ' with Fear'), '$hope'=?'$fear', 'Critical')@With disadvantage answer_format: without_expression answer_interaction: none dice_image_style: polyhedral_3d dice_image_color: red_and_white name: Daggerheart`",
+    "sendMessage: EmbedOrMessageDefinition(title=null, descriptionOrContent=Clique em um botão para rolar os dados, fields=[], componentRowDefinitions=[ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=Duality roll, id=custom_dice\u001E1_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)]), ComponentRowDefinition(componentDefinitions=[ButtonDefinition(label=With advantage, id=custom_dice\u001E2_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null), ButtonDefinition(label=With disadvantage, id=custom_dice\u001E3_button\u001E00000000-0000-0000-0000-000000000000, style=PRIMARY, disabled=false, emoji=null)])], hasImage=false, type=MESSAGE, userReference=false, sendToOtherChannelId=null)"
   ]
 ]
 

@@ -3,16 +3,14 @@ package de.janno.discord.connector.jda;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
+import com.google.common.io.Resources;
 import de.janno.discord.connector.api.*;
 import io.avaje.config.Config;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.ISnowflake;
-import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.NewsChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildMessageChannel;
@@ -27,8 +25,10 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.GenericComponentInteractionCreateEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.IntegrationType;
 import net.dv8tion.jda.api.interactions.Interaction;
 import net.dv8tion.jda.api.interactions.commands.Command;
+import net.dv8tion.jda.api.managers.ApplicationManager;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -39,6 +39,8 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -256,6 +258,8 @@ public class JdaClient {
 
         final List<JDA> shards = waitingForShardStartAndSendStatus(shardManager, botInGuildIdSet, allGuildIdsInPersistence, startStopwatch);
 
+        setupApplication(shards);
+
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             shards.forEach(jda -> sendMessageInNewsChannel(jda, "Bot shutdown started"));
             shards.parallelStream().forEach(JdaClient::shutdown);
@@ -267,6 +271,34 @@ public class JdaClient {
                 .registerSlashCommands(shards.getFirst(), disableCommandUpdate);
     }
 
+    @VisibleForTesting
+    static void setupApplication(List<JDA> shards) {
+        Icon icon = Config.getBool("dev", false) ? loadIcon("image/Button_bluetan_bw.png") : loadIcon("image/Button_bluetan_final.png");
+        shards.getFirst().getApplicationManager()
+                .setDescription(I18n.getMessage("discord.bot.description", Locale.ENGLISH))
+                .setIcon(icon)
+                .setIntegrationTypeConfig(Map.of(
+                        IntegrationType.GUILD_INSTALL, ApplicationManager.IntegrationTypeConfig.of(List.of("applications.commands", "bot"),
+                                List.of(Permission.MESSAGE_ATTACH_FILES,
+                                        Permission.MESSAGE_EMBED_LINKS,
+                                        Permission.MESSAGE_HISTORY,
+                                        Permission.MESSAGE_SEND,
+                                        Permission.MESSAGE_SEND_IN_THREADS)),
+                        IntegrationType.USER_INSTALL, ApplicationManager.IntegrationTypeConfig.of(List.of("applications.commands", "bot"), List.of())
+                ))
+                //missing banner
+                .setTags(Arrays.stream(I18n.getMessage("discord.bot.tags", Locale.ENGLISH).split(",")).toList())
+                .setInstallParams(ApplicationManager.IntegrationTypeConfig.of(List.of("applications.commands", "bot"),
+                        List.of(Permission.MESSAGE_ATTACH_FILES,
+                                Permission.MESSAGE_EMBED_LINKS,
+                                Permission.MESSAGE_HISTORY,
+                                Permission.MESSAGE_SEND,
+                                Permission.MESSAGE_SEND_IN_THREADS))
+                )
+                .queue(v -> log.info("update application"));
+    }
+
+    @VisibleForTesting
     static List<JDA> waitingForShardStartAndSendStatus(ShardManager shardManager,
                                                        Set<Long> botInGuildIdSet,
                                                        Set<Long> allGuildIdsInPersistence,
@@ -305,9 +337,23 @@ public class JdaClient {
 
         JdaMetrics.startShardCountGauge(shardManager.getShardsTotal());
 
+
         log.info("Bot startup took: {}ms, waited for Shards: {}ms", startStopwatch.elapsed(TimeUnit.MILLISECONDS), waitingForShards.elapsed(TimeUnit.MILLISECONDS));
         shards.forEach(jda -> sendMessageInNewsChannel(jda, "Bot started and is ready"));
         return shards;
+    }
+
+    private static Icon loadIcon(String path) {
+        Icon icon = null;
+        try {
+            InputStream inputStream = Resources.getResource(path).openStream();
+            if (inputStream != null) {
+                icon = Icon.from(inputStream);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return icon;
     }
 
     @VisibleForTesting

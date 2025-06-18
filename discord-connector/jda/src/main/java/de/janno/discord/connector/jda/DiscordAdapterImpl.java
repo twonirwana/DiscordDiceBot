@@ -22,6 +22,7 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.LayoutComponent;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.requests.RestAction;
+import net.dv8tion.jda.api.utils.AttachedFile;
 import net.dv8tion.jda.api.utils.FileUpload;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
@@ -31,6 +32,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.publisher.ParallelFlux;
 
 import java.awt.*;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.List;
@@ -161,7 +163,12 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
     private List<FileUpload> applyFiles(@NonNull EmbedBuilder builder, @NonNull EmbedOrMessageDefinition messageDefinition) {
         if (messageDefinition.getImage() != null) {
             builder.setImage("attachment://image.png");
-            return List.of(FileUpload.fromStreamSupplier("image.png", messageDefinition.getImage()));
+            try (FileUpload fileUpload = FileUpload.fromStreamSupplier("image.png", messageDefinition.getImage())) {
+                fileUpload.setDescription(StringUtils.abbreviate(messageDefinition.getFileAltText(), AttachedFile.MAX_DESCRIPTION_LENGTH));
+                return List.of(fileUpload);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
         return List.of();
     }
