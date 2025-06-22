@@ -43,6 +43,7 @@ public class DatabaseInitiator {
             .add("7_configName.sql")
             .add("8_messageData_delete.sql")
             .add("9_messageConfig_deleteIndex.sql")
+            .add("10_config_delete.sql")
             .build();
     private final static String BACKUP_FILE_NAME = "backup.zip";
     private static final DateTimeFormatter DATE_TIME_FORMATTER = new DateTimeFormatterBuilder()
@@ -163,7 +164,7 @@ public class DatabaseInitiator {
             throw new RuntimeException(e);
         }
         int firstUnderscoreIndex = fileName.indexOf("_");
-        String order = fileName.substring(0, firstUnderscoreIndex);
+        long order = Long.parseLong(fileName.substring(0, firstUnderscoreIndex));
         String name = fileName.substring(firstUnderscoreIndex + 1, fileName.length() - 4);
         return new Migration(order, name, content);
     }
@@ -171,7 +172,7 @@ public class DatabaseInitiator {
 
     @Value
     private static class Migration {
-        String order;
+        long order;
         String name;
         String sql;
     }

@@ -71,7 +71,7 @@ class PersistenceManagerImplTest {
         underTest = new PersistenceManagerImpl("jdbc:h2:mem:" + UUID.randomUUID(), null, null);
         UUID uuid = UUID.randomUUID();
         underTest.saveMessageData(new MessageDataDTO(uuid, 1L, 2L, 4L, "testCommand", "testConfigClass", "configClass"));
-        underTest.markAsDeleted(2L, 4L);
+        underTest.markMessageDataAsDeleted(2L, 4L);
 
         Optional<MessageDataDTO> res = underTest.getMessageData(2L, 4L);
         assertThat(res.map(MessageDataDTO::getConfigUUID)).contains(uuid);
@@ -421,6 +421,94 @@ class PersistenceManagerImplTest {
             a.assertThat(copied2.get().getName()).isEqualTo("name2");
             a.assertThat(copied2.get().getUserId()).isNull();
         });
+    }
+
+    @Test
+    void deleteOldMessageConfigThatAreMarked() throws InterruptedException {
+        UUID config1 = UUID.randomUUID();
+        underTest.saveMessageConfig(new MessageConfigDTO(config1, 1L, 2L, "testCommand", "testConfigClass", "configClass", "name1", 0L));
+        UUID config2 = UUID.randomUUID();
+        underTest.saveMessageConfig(new MessageConfigDTO(config2, 2L, 2L, "testCommand", "testConfigClass", "configClass", "name1", 0L));
+        long markCount = underTest.markDeleteAllForGuild(List.of(1L));
+        Thread.sleep(20);
+
+        io.avaje.config.Config.setProperty("db.delayMessageConfigDeletionMs", "1");
+        underTest.deleteOldMessageConfigThatAreMarked();
+
+        assertThat(markCount).isEqualTo(1);
+        assertThat(underTest.getMessageConfig(config1)).isEmpty();
+        assertThat(underTest.getMessageConfig(config2)).isPresent();
+    }
+
+    @Test
+    void deleteOldChannelConfigThatAreMarked() throws InterruptedException {
+        UUID config1 = UUID.randomUUID();
+        underTest.saveChannelConfig(new ChannelConfigDTO(config1, 1L, 1L, null, "testCommand2", "testConfigClass1", "configClass2", "name2"));
+        UUID config2 = UUID.randomUUID();
+        underTest.saveChannelConfig(new ChannelConfigDTO(config2, 2L, 2L, null, "testCommand2", "testConfigClass2", "configClass2", "name2"));
+        long markCount = underTest.markDeleteAllForGuild(List.of(1L));
+        Thread.sleep(20);
+
+        io.avaje.config.Config.setProperty("db.delayChannelConfigDeletionMs", "1");
+        underTest.deleteOldChannelConfigThatAreMarked();
+
+        assertThat(markCount).isEqualTo(1);
+        assertThat(underTest.getChannelConfig(1L, "testConfigClass1")).isEmpty();
+        assertThat(underTest.getChannelConfig(2L, "testConfigClass2")).isPresent();
+    }
+
+    @Test
+    void deleteOldMessageDataThatAreMarked() throws InterruptedException {
+        UUID messageData1 = UUID.randomUUID();
+        underTest.saveMessageData(new MessageDataDTO(messageData1, 1L, 1L, 4L, "testCommand", "testConfigClass", "configClass"));
+        UUID messageData2 = UUID.randomUUID();
+        underTest.saveMessageData(new MessageDataDTO(messageData2, 2L, 2L, 5L, "testCommand", "testConfigClass", "configClass"));
+        long markCount = underTest.markDeleteAllForGuild(List.of(1L));
+        Thread.sleep(20);
+
+        io.avaje.config.Config.setProperty("db.delayMessageDataDeletionMs", "1");
+        underTest.deleteOldMessageDataThatAreMarked();
+
+        assertThat(markCount).isEqualTo(1);
+        assertThat(underTest.getMessageData(1L, 4L)).isEmpty();
+        assertThat(underTest.getMessageData(2L, 5L)).isPresent();
+    }
+
+    @Test
+    void undoMarkDelete() throws InterruptedException {
+        UUID config1 = UUID.randomUUID();
+        underTest.saveMessageConfig(new MessageConfigDTO(config1, 1L, 2L, "testCommand", "testConfigClass", "configClass", "name1", 0L));
+        UUID config2 = UUID.randomUUID();
+        underTest.saveMessageConfig(new MessageConfigDTO(config2, 2L, 2L, "testCommand", "testConfigClass", "configClass", "name1", 0L));
+        UUID channelConfig1 = UUID.randomUUID();
+        underTest.saveChannelConfig(new ChannelConfigDTO(channelConfig1, 1L, 1L, null, "testCommand2", "testConfigClass1", "configClass2", "name2"));
+        UUID channelConfig2 = UUID.randomUUID();
+        underTest.saveChannelConfig(new ChannelConfigDTO(channelConfig2, 2L, 2L, null, "testCommand2", "testConfigClass2", "configClass2", "name2"));
+        UUID messageData1 = UUID.randomUUID();
+        underTest.saveMessageData(new MessageDataDTO(messageData1, 1L, 1L, 4L, "testCommand", "testConfigClass", "configClass"));
+        UUID messageData2 = UUID.randomUUID();
+        underTest.saveMessageData(new MessageDataDTO(messageData2, 2L, 2L, 5L, "testCommand", "testConfigClass", "configClass"));
+
+        long markCount = underTest.markDeleteAllForGuild(List.of(1L));
+        Thread.sleep(20);
+
+        underTest.undoMarkDelete(1L);
+
+        io.avaje.config.Config.setProperty("db.delayMessageConfigDeletionMs", "1");
+        underTest.deleteOldMessageConfigThatAreMarked();
+        io.avaje.config.Config.setProperty("db.delayChannelConfigDeletionMs", "1");
+        underTest.deleteOldChannelConfigThatAreMarked();
+        io.avaje.config.Config.setProperty("db.delayMessageDataDeletionMs", "1");
+        underTest.deleteOldMessageDataThatAreMarked();
+
+
+        assertThat(markCount).isEqualTo(3);
+        assertThat(underTest.getMessageConfig(config1)).isPresent();
+        assertThat(underTest.getMessageConfig(config2)).isPresent();
+        assertThat(underTest.getChannelConfig(1L, "testConfigClass1")).isPresent();
+        assertThat(underTest.getChannelConfig(2L, "testConfigClass2")).isPresent();
+        assertThat(underTest.getMessageData(1L, 4L)).isEmpty();
+        assertThat(underTest.getMessageData(2L, 5L)).isPresent();
     }
 
     record GuildUser(Long guildId, Long userId) {

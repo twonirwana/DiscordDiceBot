@@ -42,26 +42,26 @@ import reactor.core.scheduler.Schedulers;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 @Slf4j
 public class JdaClient {
 
+    @VisibleForTesting
+    final static AtomicBoolean started = new AtomicBoolean(false);
     private final static String WITHOUT_GUILD = "without_guild";
 
     public JdaClient(@NonNull List<SlashCommand> slashCommands,
                      @NonNull List<ComponentCommand> componentCommands,
                      @NonNull WelcomeMessageCreator welcomeMessageCreator,
-                     @NonNull Set<Long> allGuildIdsInPersistence,
-                     @NonNull Consumer<ChildrenChannelCreationEvent> childrenChannelCreationEventConsumer) {
+                     @NonNull DatabaseConnector databaseConnector) {
 
-        final LocalDateTime startTime = LocalDateTime.now();
         final Stopwatch startStopwatch = Stopwatch.createStarted();
         final Scheduler scheduler = Schedulers.boundedElastic();
         final Set<Long> botInGuildIdSet = new ConcurrentSkipListSet<>();
@@ -85,55 +85,22 @@ public class JdaClient {
                         new ListenerAdapter() {
                             @Override
                             public void onGuildJoin(@NonNull GuildJoinEvent event) {
-                                if (!botInGuildIdSet.contains(event.getGuild().getIdLong())) {
-                                    log.info("Bot started in guild: name='{}', memberCount={}", event.getGuild().getName(),
-                                            event.getGuild().getMemberCount());
-                                    botInGuildIdSet.add(event.getGuild().getIdLong());
-                                    if (LocalDateTime.now().isAfter(startTime.plus(Duration.of(Config.getLong("welcomeMessageStartTimePlusBufferSec"), ChronoUnit.SECONDS)))) {
-                                        Optional.ofNullable(event.getGuild().getSystemChannel())
-                                                .filter(GuildMessageChannel::canTalk)
-                                                .ifPresent(textChannel -> {
-                                                    final WelcomeMessageCreator.WelcomeRequest request = new WelcomeMessageCreator.WelcomeRequest(event.getGuild().getIdLong(),
-                                                            textChannel.getIdLong(), LocaleConverter.toLocale(event.getGuild().getLocale()));
-                                                    final WelcomeMessageCreator.MessageAndConfigId welcomeMessageAndConfigId = welcomeMessageCreator.getWelcomeMessage(request);
-                                                    createMonoFrom(() -> textChannel.sendMessage(
-                                                            MessageComponentConverter.messageComponent2MessageLayout(welcomeMessageAndConfigId.embedOrMessageDefinition().getDescriptionOrContent(),
-                                                                    welcomeMessageAndConfigId.embedOrMessageDefinition().getComponentRowDefinitions())))
-                                                            .doOnNext(m -> welcomeMessageCreator.processMessageId(request, welcomeMessageAndConfigId.configUUID(), m.getIdLong()))
-                                                            .doOnSuccess(m -> {
-                                                                JdaMetrics.sendWelcomeMessage();
-                                                                log.info("Welcome message send in '{}'.'{}'",
-                                                                        event.getGuild().getName(),
-                                                                        textChannel.getName());
-                                                            })
-                                                            .subscribeOn(scheduler)
-                                                            .subscribe();
-                                                });
-                                    }
-                                }
+                                onGuildJoinHandler(event, botInGuildIdSet, databaseConnector, welcomeMessageCreator, scheduler);
                             }
 
                             @Override
                             public void onGuildLeave(@NonNull GuildLeaveEvent event) {
-                                if (botInGuildIdSet.contains(event.getGuild().getIdLong())) {
-                                    log.info("Bot removed in guild: name='{}', memberCount={}", event.getGuild().getName(),
-                                            event.getGuild().getMemberCount());
-                                    botInGuildIdSet.remove(event.getGuild().getIdLong());
-                                }
+                                onGuildLeaveHandler(event, botInGuildIdSet, databaseConnector);
                             }
 
                             @Override
                             public void onChannelCreate(@NonNull ChannelCreateEvent event) {
-                                onChannelCreateHandler(event, childrenChannelCreationEventConsumer);
+                                onChannelCreateHandler(event, databaseConnector::copyChildChannel);
                             }
 
                             @Override
                             public void onGuildReady(@NonNull GuildReadyEvent event) {
-                                if (!botInGuildIdSet.contains(event.getGuild().getIdLong())) {
-                                    log.info("Bot started with guild: name='{}', memberCount={}", event.getGuild().getName(),
-                                            event.getGuild().getMemberCount());
-                                    botInGuildIdSet.add(event.getGuild().getIdLong());
-                                }
+                                onGuildReadyHandler(event, botInGuildIdSet, databaseConnector);
                             }
 
                             @Override
@@ -234,12 +201,12 @@ public class JdaClient {
                                     event.getInteraction().deferEdit().complete();
                                     return;
                                 }
-                                onComponentEvent(value, event, componentCommands, scheduler);
+                                onComponentEventHandler(value, event, componentCommands, scheduler);
                             }
 
                             @Override
                             public void onButtonInteraction(@NonNull ButtonInteractionEvent event) {
-                                onComponentEvent(event.getComponentId(), event, componentCommands, scheduler);
+                                onComponentEventHandler(event.getComponentId(), event, componentCommands, scheduler);
                             }
                         }
                 )
@@ -256,7 +223,7 @@ public class JdaClient {
         shardIds.ifPresent(shardManagerBuilder::setShards);
         ShardManager shardManager = shardManagerBuilder.build();
 
-        final List<JDA> shards = waitingForShardStartAndSendStatus(shardManager, botInGuildIdSet, allGuildIdsInPersistence, startStopwatch);
+        final List<JDA> shards = waitingForShardStartAndSendStatus(shardManager, botInGuildIdSet, databaseConnector::markDataOfMissingGuildsToDelete, startStopwatch);
 
         setupApplication(shards);
 
@@ -269,6 +236,65 @@ public class JdaClient {
         SlashCommandRegistry.builder()
                 .addSlashCommands(slashCommands)
                 .registerSlashCommands(shards.getFirst(), disableCommandUpdate);
+    }
+
+    @VisibleForTesting
+    static void onGuildReadyHandler(GuildReadyEvent event,
+                                    Set<Long> botInGuildIdSet,
+                                    DatabaseConnector databaseConnector) {
+        if (!botInGuildIdSet.contains(event.getGuild().getIdLong())) {
+            log.info("Bot started with guild: name='{}', memberCount={}", event.getGuild().getName(),
+                    event.getGuild().getMemberCount());
+            botInGuildIdSet.add(event.getGuild().getIdLong());
+            databaseConnector.unmarkDataOfJoiningGuilds(event.getGuild().getIdLong());
+        }
+    }
+
+    @VisibleForTesting
+    static void onGuildLeaveHandler(GuildLeaveEvent event,
+                                    Set<Long> botInGuildIdSet,
+                                    DatabaseConnector databaseConnector) {
+        if (botInGuildIdSet.contains(event.getGuild().getIdLong())) {
+            log.info("Bot removed in guild: name='{}', memberCount={}", event.getGuild().getName(),
+                    event.getGuild().getMemberCount());
+            botInGuildIdSet.remove(event.getGuild().getIdLong());
+            databaseConnector.markDataOfLeavingGuildsToDelete(event.getGuild().getIdLong());
+        }
+    }
+
+    @VisibleForTesting
+    static void onGuildJoinHandler(GuildJoinEvent event,
+                                   Set<Long> botInGuildIdSet,
+                                   DatabaseConnector databaseConnector,
+                                   WelcomeMessageCreator welcomeMessageCreator,
+                                   Scheduler scheduler) {
+        if (!botInGuildIdSet.contains(event.getGuild().getIdLong())) {
+            log.info("Bot started in guild: name='{}', memberCount={}", event.getGuild().getName(),
+                    event.getGuild().getMemberCount());
+            botInGuildIdSet.add(event.getGuild().getIdLong());
+            databaseConnector.unmarkDataOfJoiningGuilds(event.getGuild().getIdLong());
+            if (started.get()) {
+                Optional.ofNullable(event.getGuild().getSystemChannel())
+                        .filter(GuildMessageChannel::canTalk)
+                        .ifPresent(textChannel -> {
+                            final WelcomeMessageCreator.WelcomeRequest request = new WelcomeMessageCreator.WelcomeRequest(event.getGuild().getIdLong(),
+                                    textChannel.getIdLong(), LocaleConverter.toLocale(event.getGuild().getLocale()));
+                            final WelcomeMessageCreator.MessageAndConfigId welcomeMessageAndConfigId = welcomeMessageCreator.getWelcomeMessage(request);
+                            createMonoFrom(() -> textChannel.sendMessage(
+                                    MessageComponentConverter.messageComponent2MessageLayout(welcomeMessageAndConfigId.embedOrMessageDefinition().getDescriptionOrContent(),
+                                            welcomeMessageAndConfigId.embedOrMessageDefinition().getComponentRowDefinitions())))
+                                    .doOnNext(m -> welcomeMessageCreator.processMessageId(request, welcomeMessageAndConfigId.configUUID(), m.getIdLong()))
+                                    .doOnSuccess(m -> {
+                                        JdaMetrics.sendWelcomeMessage();
+                                        log.info("Welcome message send in '{}'.'{}'",
+                                                event.getGuild().getName(),
+                                                textChannel.getName());
+                                    })
+                                    .subscribeOn(scheduler)
+                                    .subscribe();
+                        });
+            }
+        }
     }
 
     @VisibleForTesting
@@ -301,7 +327,7 @@ public class JdaClient {
     @VisibleForTesting
     static List<JDA> waitingForShardStartAndSendStatus(ShardManager shardManager,
                                                        Set<Long> botInGuildIdSet,
-                                                       Set<Long> allGuildIdsInPersistence,
+                                                       Consumer<Set<Long>> allGuildsAfterStartupConsumer,
                                                        Stopwatch startStopwatch) {
         JdaMetrics.startGuildCountGauge(botInGuildIdSet);
 
@@ -325,21 +351,17 @@ public class JdaClient {
                 JdaMetrics.startTextChannelCacheGauge(jda);
                 JdaMetrics.startGuildCacheGauge(jda);
                 JdaMetrics.startRestLatencyGauge(jda);
-                long inactiveGuildIdCountWithConfig = allGuildIdsInPersistence.stream()
-                        .filter(id -> !botInGuildIdSet.contains(id))
-                        .count();
-                log.info("Inactive guild count with config: {}", inactiveGuildIdCountWithConfig);
 
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         });
-
-        JdaMetrics.startShardCountGauge(shardManager.getShardsTotal());
-
+        JdaMetrics.startShardCountGauge(shards.size());
+        allGuildsAfterStartupConsumer.accept(botInGuildIdSet);
 
         log.info("Bot startup took: {}ms, waited for Shards: {}ms", startStopwatch.elapsed(TimeUnit.MILLISECONDS), waitingForShards.elapsed(TimeUnit.MILLISECONDS));
         shards.forEach(jda -> sendMessageInNewsChannel(jda, "Bot started and is ready"));
+        started.set(true);
         return shards;
     }
 
@@ -365,7 +387,11 @@ public class JdaClient {
         }
     }
 
-    private static void onComponentEvent(final String customId, GenericComponentInteractionCreateEvent event, List<ComponentCommand> componentCommands, Scheduler scheduler) {
+    @VisibleForTesting
+    static void onComponentEventHandler(final String customId,
+                                        GenericComponentInteractionCreateEvent event,
+                                        List<ComponentCommand> componentCommands,
+                                        Scheduler scheduler) {
         log.trace("ComponentEvent: {} from {}", customId, event.getInteraction().getUser().getName());
         if (!BottomCustomIdUtils.isValidCustomId(customId)) {
             log.warn("Custom id {} is not a valid custom id.", customId);

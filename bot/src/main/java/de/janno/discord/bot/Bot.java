@@ -1,6 +1,7 @@
 package de.janno.discord.bot;
 
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
 import de.janno.discord.bot.command.ClearCommand;
 import de.janno.discord.bot.command.FetchCommand;
@@ -23,10 +24,14 @@ import de.janno.discord.bot.dice.CachingDiceEvaluator;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.bot.persistance.PersistenceManagerImpl;
 import de.janno.discord.connector.DiscordConnectorImpl;
+import de.janno.discord.connector.api.ChildrenChannelCreationEvent;
+import de.janno.discord.connector.api.DatabaseConnector;
 import de.janno.evaluator.dice.random.RandomNumberSupplier;
 import io.avaje.config.Config;
 import lombok.extern.slf4j.Slf4j;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Set;
 
@@ -49,7 +54,6 @@ public class Bot {
         final String password = Config.getNullable("db.password");
         PersistenceManager persistenceManager = new PersistenceManagerImpl(url, user, password);
 
-        Set<Long> allGuildIdsInPersistence = persistenceManager.getAllGuildIds();
         CachingDiceEvaluator cachingDiceEvaluator = new CachingDiceEvaluator(new RandomNumberSupplier());
 
         CustomDiceCommand customDiceCommand = new CustomDiceCommand(persistenceManager, cachingDiceEvaluator);
@@ -87,8 +91,67 @@ public class Bot {
                         starterCommand
                 ),
                 starterCommand.getWelcomeMessage(),
-                allGuildIdsInPersistence,
-                persistenceManager::copyChannelConfig);
+                new DatabaseConnector() {
+                    @Override
+                    public void markDataOfMissingGuildsToDelete(Set<Long> allGuildIdsAtStartup) {
+                        markAlreadyLeavedGuildsAsDeleted(persistenceManager, allGuildIdsAtStartup);
+                    }
+
+                    @Override
+                    public void markDataOfLeavingGuildsToDelete(long leavingGuildId) {
+                        long markDeleteCount = persistenceManager.markDeleteAllForGuild(List.of(leavingGuildId));
+                        BotMetrics.incrementMarkAsDeleteAfterLeavingBot(markDeleteCount);
+                    }
+
+                    @Override
+                    public void unmarkDataOfJoiningGuilds(long joiningGuildId) {
+                        long unmarkCount = persistenceManager.undoMarkDelete(joiningGuildId);
+                        log.info("Unmark configs after rejoin: {}", unmarkCount);
+                        BotMetrics.unmarkDeleteAfterRejoin(unmarkCount);
+                    }
+
+                    @Override
+                    public void copyChildChannel(ChildrenChannelCreationEvent childrenChannelCreationEvent) {
+                        persistenceManager.copyChannelConfig(childrenChannelCreationEvent);
+                    }
+                });
+    }
+
+
+    @VisibleForTesting
+    static void markAlreadyLeavedGuildsAsDeleted(PersistenceManager persistenceManager, Set<Long> guildIdsAtStartup) {
+
+        if (guildIdsAtStartup.isEmpty()) {
+            log.info("not guilds in startup");
+            return;
+        }
+
+        Set<Long> allGuildIdsInPersistence = persistenceManager.getAllGuildIds();
+
+        if (allGuildIdsInPersistence.isEmpty()) {
+            log.error("No existing guilds found");
+            return;
+        }
+        if (guildIdsAtStartup.stream().anyMatch(guildId -> !allGuildIdsInPersistence.contains(guildId))) {
+            log.error("A guild in the startup set {} was not in the persisted set: {}", guildIdsAtStartup, allGuildIdsInPersistence);
+            return;
+        }
+        List<Long> guildsToDelete = allGuildIdsInPersistence.stream()
+                .filter(g -> !guildIdsAtStartup.contains(g))
+                .toList();
+
+        BigDecimal ratioToDelete = BigDecimal.valueOf(guildsToDelete.size()).divide(BigDecimal.valueOf(allGuildIdsInPersistence.size()), 2, RoundingMode.HALF_UP);
+        BigDecimal maxRatioToDelete = Config.getDecimal("maxGuildCleanUpRatio", "0.1");
+        if (ratioToDelete.compareTo(maxRatioToDelete) > 0) {
+            log.error("Number of guilds to delete: {}, number of guilds in persistence: {}, the ratio is {} but it must be greater then {}", guildsToDelete.size(), allGuildIdsInPersistence.size(), ratioToDelete, maxRatioToDelete);
+            return;
+        }
+
+        log.info("Start remove data of inactive {} guilds", guildsToDelete.size());
+        long totalDeletes = persistenceManager.markDeleteAllForGuild(guildsToDelete);
+        log.info("Finished deleting {} objects from inactive guilds", totalDeletes);
+        BotMetrics.incrementMarkAsDeleteAfterLeavingBot(totalDeletes);
+
     }
 
 }

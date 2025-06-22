@@ -7,7 +7,6 @@ http.timeoutSec: 30
 shardsTotal:
 shardIds:
 disableCommandUpdate: false
-welcomeMessageStartTimePlusBufferSec: 300
 shutdownWaitTimeSec: 10
 # if it is a dev/beta instance, default is false
 dev:
@@ -17,7 +16,11 @@ db:
   password:
   deleteMarkMessageDataIntervalInMilliSec: 10000
   deleteMarkMessageDataStartDelayMilliSec: 0
+  deleteMarkedConfigIntervalInMilliSec: 3600000 #1h
+  deleteMarkedConfigStartDelayMilliSec: 0
   delayMessageDataDeletionMs: 10000
+  delayMessageConfigDeletionMs: 604800000 #7 days
+  delayChannelConfigDeletionMs: 604800000 #7 days
 metric:
   url: localhost
   port: 8080

@@ -237,6 +237,14 @@ public class BotMetrics {
         globalRegistry.counter(METRIC_PREFIX + METRIC_COPY_CHANNEL_CONFIG_PREFIX).increment(count);
     }
 
+    public static void unmarkDeleteAfterRejoin(long unmarkCount) {
+        globalRegistry.counter(METRIC_PREFIX + "unmarkDataDelete").increment(unmarkCount);
+    }
+
+    public static void incrementMarkAsDeleteAfterLeavingBot(long markDeleteCount) {
+        globalRegistry.counter(METRIC_PREFIX + "markDataAsDelete").increment(markDeleteCount);
+    }
+
     public enum CacheTag {
         CACHE_HIT,
         CACHE_MISS,

@@ -51,29 +51,29 @@ The quickstart will show a user also all named commands other user have created 
 [cols="1,1"]
 |===
 |`A Song of Ice and Fire`
-|`Blades in the Dark`
 |`Blades in the Dark - Detail`
 |`Blades in the Dark without Dice Images`
+|`Blades in the Dark`
 |`Bluebeard's Bride`
 |`Call of Cthulhu 7th Edition`
-|`Candela Obscura`
 |`Candela Obscura v2`
+|`Candela Obscura`
 |`City of Mist`
-|`Coin Toss`
 |`Cyberpunk Red`
 |`Daggerheart`
 |`Dice Calculator`
-|`Dungeon & Dragons 5e`
-|`Dungeon & Dragons 5e Calculator`
 |`Dungeon & Dragons 5e Calculator 2`
+|`Dungeon & Dragons 5e Calculator`
 |`Dungeon & Dragons 5e without Dice Images`
+|`Dungeon & Dragons 5e`
 |`Dungeon Crawl Classics`
 |`EZD6`
 |`Exalted 3ed`
 |`Fallout`
-|`Fate`
 |`Fate without Dice Images`
+|`Fate`
 |`Forbidden Lands`
+|`Ghostbusters: A Frightfully Cheerful Roleplaying Game First Edition & Spooktacular`
 |`Heroes of Cerulea`
 |`Hunter 5ed`
 |`Ironsworn`
@@ -92,8 +92,8 @@ The quickstart will show a user also all named commands other user have created 
 |`Salvage Union BDR-V1.0`
 |`Savage Worlds`
 |`Shadowdark`
-|`Shadowrun`
 |`Shadowrun without Dice Images`
+|`Shadowrun`
 |`Star Wars - West End Games D6 Rules, 2nd Edition REUP`
 |`The Expanse`
 |`The Marvel Multiverse Role-Playing Game`
@@ -101,10 +101,11 @@ The quickstart will show a user also all named commands other user have created 
 |`Tiny D6`
 |`Traveller`
 |`Vampire 5ed`
+|`Warhammer Age of Sigmar: Soulbound`
 |`Year Zero Engine: Alien`
 |`nWod / Chronicles of Darkness`
 |`oWod / Storyteller System`
-|
+|`🪙Coin Toss`
 |===
 
 The quickstart command can also set alias to make direct rolls more comfortable.

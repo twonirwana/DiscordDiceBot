@@ -54,7 +54,7 @@ public class MessageDeletionHelper {
 
 
     public static Mono<Void> markAsDeleted(PersistenceManager persistenceManager, long channelId, long messageId) {
-        persistenceManager.markAsDeleted(channelId, messageId);
+        persistenceManager.markMessageDataAsDeleted(channelId, messageId);
         return Mono.empty();
     }
 

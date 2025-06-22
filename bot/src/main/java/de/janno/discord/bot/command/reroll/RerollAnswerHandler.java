@@ -23,8 +23,6 @@ import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-
-import java.time.Duration;
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -211,10 +209,8 @@ public class RerollAnswerHandler extends ComponentCommandImpl<RerollAnswerConfig
     }
 
     public Mono<Void> deleteMessageConfigWithDelay(UUID configUUID) {
-        final Duration delay = Duration.ofMillis(io.avaje.config.Config.getLong("db.delayMessageDataDeletionMs", 10000));
         return Mono.defer(() -> Mono.just(configUUID)
-                .delayElement(delay)
-                .doOnNext(persistenceManager::deleteMessageConfig).ofType(Void.class));
+                .doOnNext(persistenceManager::markMessageConfigAsDeleted).ofType(Void.class));
     }
 
     @Override
