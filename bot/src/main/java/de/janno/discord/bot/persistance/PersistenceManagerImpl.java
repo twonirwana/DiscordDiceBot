@@ -587,7 +587,6 @@ public class PersistenceManagerImpl implements PersistenceManager {
         BotMetrics.databaseTimer("deleteAllChannelConfig", stopwatch.elapsed());
     }
 
-
     @Override
     public void markMessageConfigAsDeleted(UUID configUUID) {
         Stopwatch stopwatch = Stopwatch.createStarted();
@@ -739,15 +738,15 @@ public class PersistenceManagerImpl implements PersistenceManager {
         Stopwatch stopwatch = Stopwatch.createStarted();
         try (Connection con = databaseConnector.getConnection()) {
             final LocalDateTime markedAsDeletedTime = LocalDateTime.now();
-            final Array guildIdArray = con.createArrayOf("long", guildIds.toArray());
+            final String inList = guildIds.stream().map(Object::toString).collect(Collectors.joining(","));
             Stopwatch messageConfigStopwatch = Stopwatch.createStarted();
 
             try (PreparedStatement preparedStatement = con.prepareStatement("""
                     UPDATE MESSAGE_CONFIG SET MARKED_DELETED = ?
-                    where GUILD_ID in (?) and MARKED_DELETED is null;
-                    """)) {
+                     where MARKED_DELETED is null and GUILD_ID IN (
+                    """
+                    + inList + ");")) {
                 preparedStatement.setObject(1, markedAsDeletedTime);
-                preparedStatement.setArray(2, guildIdArray);
                 totalMarked += preparedStatement.executeUpdate();
                 BotMetrics.databaseTimer("markDeleteAllForGuild-messageConfig", messageConfigStopwatch.elapsed());
             }
@@ -755,10 +754,10 @@ public class PersistenceManagerImpl implements PersistenceManager {
             Stopwatch messageDataStopwatch = Stopwatch.createStarted();
             try (PreparedStatement preparedStatement = con.prepareStatement("""
                     UPDATE MESSAGE_DATA SET MARKED_DELETED = ?
-                    where GUILD_ID in (?) and MARKED_DELETED is null;
-                    """)) {
+                     where MARKED_DELETED is null and GUILD_ID IN (
+                    """
+                    + inList + ");")) {
                 preparedStatement.setObject(1, markedAsDeletedTime);
-                preparedStatement.setArray(2, guildIdArray);
                 totalMarked += preparedStatement.executeUpdate();
                 BotMetrics.databaseTimer("markDeleteAllForGuild-messageData", messageDataStopwatch.elapsed());
             }
@@ -766,10 +765,10 @@ public class PersistenceManagerImpl implements PersistenceManager {
             Stopwatch channelConfigStopwatch = Stopwatch.createStarted();
             try (PreparedStatement preparedStatement = con.prepareStatement("""
                     UPDATE CHANNEL_CONFIG SET MARKED_DELETED = ?
-                    where GUILD_ID in (?) and MARKED_DELETED is null;
-                    """)) {
+                     where MARKED_DELETED is null and GUILD_ID IN (
+                    """
+                    + inList + ");")) {
                 preparedStatement.setObject(1, markedAsDeletedTime);
-                preparedStatement.setArray(2, guildIdArray);
                 totalMarked += preparedStatement.executeUpdate();
                 BotMetrics.databaseTimer("markDeleteAllForGuild-channelConfig", channelConfigStopwatch.elapsed());
             }

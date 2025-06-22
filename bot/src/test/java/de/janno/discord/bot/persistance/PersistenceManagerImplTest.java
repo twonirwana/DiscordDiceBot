@@ -446,7 +446,7 @@ class PersistenceManagerImplTest {
         underTest.saveChannelConfig(new ChannelConfigDTO(config1, 1L, 1L, null, "testCommand2", "testConfigClass1", "configClass2", "name2"));
         UUID config2 = UUID.randomUUID();
         underTest.saveChannelConfig(new ChannelConfigDTO(config2, 2L, 2L, null, "testCommand2", "testConfigClass2", "configClass2", "name2"));
-        long markCount = underTest.markDeleteAllForGuild(List.of(1L));
+        long markCount = underTest.markDeleteAllForGuild(List.of(1L, 3L));
         Thread.sleep(20);
 
         io.avaje.config.Config.setProperty("db.delayChannelConfigDeletionMs", "1");
@@ -463,7 +463,7 @@ class PersistenceManagerImplTest {
         underTest.saveMessageData(new MessageDataDTO(messageData1, 1L, 1L, 4L, "testCommand", "testConfigClass", "configClass"));
         UUID messageData2 = UUID.randomUUID();
         underTest.saveMessageData(new MessageDataDTO(messageData2, 2L, 2L, 5L, "testCommand", "testConfigClass", "configClass"));
-        long markCount = underTest.markDeleteAllForGuild(List.of(1L));
+        long markCount = underTest.markDeleteAllForGuild(List.of(1L, 3L));
         Thread.sleep(20);
 
         io.avaje.config.Config.setProperty("db.delayMessageDataDeletionMs", "1");
@@ -489,7 +489,7 @@ class PersistenceManagerImplTest {
         UUID messageData2 = UUID.randomUUID();
         underTest.saveMessageData(new MessageDataDTO(messageData2, 2L, 2L, 5L, "testCommand", "testConfigClass", "configClass"));
 
-        long markCount = underTest.markDeleteAllForGuild(List.of(1L));
+        long markCount = underTest.markDeleteAllForGuild(List.of(1L, 3L));
         Thread.sleep(20);
 
         underTest.undoMarkDelete(1L);

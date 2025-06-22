@@ -8,6 +8,7 @@ shardsTotal:
 shardIds:
 disableCommandUpdate: false
 shutdownWaitTimeSec: 10
+maxGuildCleanUpRatio: 0.1
 # if it is a dev/beta instance, default is false
 dev:
 db:

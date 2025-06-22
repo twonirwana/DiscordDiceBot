@@ -147,9 +147,9 @@ public class Bot {
             return;
         }
 
-        log.info("Start remove data of inactive {} guilds", guildsToDelete.size());
+        log.info("Start marking data of inactive {} guilds", guildsToDelete.size());
         long totalDeletes = persistenceManager.markDeleteAllForGuild(guildsToDelete);
-        log.info("Finished deleting {} objects from inactive guilds", totalDeletes);
+        log.info("Finished marking {} objects from inactive guilds", totalDeletes);
         BotMetrics.incrementMarkAsDeleteAfterLeavingBot(totalDeletes);
 
     }
