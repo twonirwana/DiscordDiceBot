@@ -788,7 +788,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
 
             try (PreparedStatement preparedStatement = con.prepareStatement("""
                     UPDATE MESSAGE_CONFIG SET MARKED_DELETED = null
-                    where GUILD_ID = ?;
+                    where GUILD_ID = ? and MARKED_DELETED is not null;
                     """)) {
                 preparedStatement.setLong(1, guildId);
                 totalMarked += preparedStatement.executeUpdate();
@@ -798,7 +798,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
             Stopwatch channelConfigStopwatch = Stopwatch.createStarted();
             try (PreparedStatement preparedStatement = con.prepareStatement("""
                     UPDATE CHANNEL_CONFIG SET MARKED_DELETED = null
-                    where GUILD_ID = ?;
+                    where GUILD_ID = ? and MARKED_DELETED is not null;
                     """)) {
                 preparedStatement.setLong(1, guildId);
                 totalMarked += preparedStatement.executeUpdate();
