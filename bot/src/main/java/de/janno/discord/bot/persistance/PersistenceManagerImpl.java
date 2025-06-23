@@ -36,6 +36,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
         DatabaseInitiator.initialize(databaseConnector);
 
         queryGauge("db.channel.count", "select count (distinct CHANNEL_ID) from MESSAGE_DATA;", databaseConnector.getDataSource(), Set.of());
+        queryGauge("db.config.deleted.count", "select count(distinct CONFIG_ID) from MESSAGE_CONFIG where MARKED_DELETED is not null;", databaseConnector.getDataSource(), Set.of());
         queryGauge("db.channel.config.count", "select count (distinct CHANNEL_ID) from CHANNEL_CONFIG;", databaseConnector.getDataSource(), Set.of());
         queryGauge("db.guild.count", "select count (distinct GUILD_ID) from MESSAGE_DATA;", databaseConnector.getDataSource(), Set.of());
         queryGauge("db.guild-null.count", "select count (distinct CHANNEL_ID) from MESSAGE_DATA where GUILD_ID is null;", databaseConnector.getDataSource(), Set.of());
@@ -47,15 +48,29 @@ public class PersistenceManagerImpl implements PersistenceManager {
         queryGauge("db.messageData-7d.active", "select count (MESSAGE_ID) from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '10080' MINUTE;", databaseConnector.getDataSource(), Set.of());
         queryGauge("db.messageData-1d.active", "select count (MESSAGE_ID) from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '1440' MINUTE;", databaseConnector.getDataSource(), Set.of());
 
-        long interval = io.avaje.config.Config.getLong("db.deleteMarkMessageDataIntervalInMilliSec", 10_000);
-        if (interval > 0) {
+        long messageDataDeleteIntervalMs = io.avaje.config.Config.getLong("db.deleteMarkMessageDataIntervalInMilliSec", 10_000);
+        if (messageDataDeleteIntervalMs > 0) {
             ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
             executorService.scheduleAtFixedRate(this::deleteOldMessageDataThatAreMarked,
                     io.avaje.config.Config.getLong("db.deleteMarkMessageDataStartDelayMilliSec", 0),
-                    interval,
+                    messageDataDeleteIntervalMs,
                     TimeUnit.MILLISECONDS);
             Runtime.getRuntime().addShutdownHook(new Thread(executorService::shutdownNow));
         }
+
+        long configDeleteIntervalMs = io.avaje.config.Config.getLong("db.deleteMarkedConfigIntervalInMilliSec", 1000 * 60 * 60);
+        if (configDeleteIntervalMs > 0) {
+            ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+            executorService.scheduleAtFixedRate(() -> {
+                        deleteOldMessageConfigThatAreMarked();
+                        deleteOldChannelConfigThatAreMarked();
+                    },
+                    io.avaje.config.Config.getLong("db.deleteMarkedConfigStartDelayMilliSec", 0),
+                    configDeleteIntervalMs,
+                    TimeUnit.MILLISECONDS);
+            Runtime.getRuntime().addShutdownHook(new Thread(executorService::shutdownNow));
+        }
+
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             log.info("start db shutdown");
             databaseConnector.dispose();
@@ -66,8 +81,6 @@ public class PersistenceManagerImpl implements PersistenceManager {
                 throw new RuntimeException(e);
             }
         }));
-
-
     }
 
     @VisibleForTesting
@@ -90,6 +103,45 @@ public class PersistenceManagerImpl implements PersistenceManager {
         BotMetrics.databaseTimer("deleteOldMessageDataThatAreMarked", stopwatch.elapsed());
     }
 
+    @VisibleForTesting
+    void deleteOldMessageConfigThatAreMarked() {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        final Duration delay = Duration.ofMillis(io.avaje.config.Config.getLong("db.delayMessageConfigDeletionMs", 1000 * 60 * 60 * 24 * 7));
+        LocalDateTime deleteAllBefore = LocalDateTime.now().minus(delay);
+
+        try (Connection con = databaseConnector.getConnection()) {
+            try (PreparedStatement preparedStatement = con.prepareStatement("DELETE FROM MESSAGE_CONFIG WHERE MARKED_DELETED IS NOT NULL AND MARKED_DELETED < ?")) {
+                preparedStatement.setObject(1, deleteAllBefore);
+                long deleted = preparedStatement.executeUpdate();
+                if (deleted > 0) {
+                    log.info("deleted message config: {}", deleted);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        BotMetrics.databaseTimer("deleteOldMessageConfigThatAreMarked", stopwatch.elapsed());
+    }
+
+    @VisibleForTesting
+    void deleteOldChannelConfigThatAreMarked() {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        final Duration delay = Duration.ofMillis(io.avaje.config.Config.getLong("db.delayChannelConfigDeletionMs", 1000 * 60 * 60 * 24 * 7));
+        LocalDateTime deleteAllBefore = LocalDateTime.now().minus(delay);
+
+        try (Connection con = databaseConnector.getConnection()) {
+            try (PreparedStatement preparedStatement = con.prepareStatement("DELETE FROM CHANNEL_CONFIG WHERE MARKED_DELETED IS NOT NULL AND MARKED_DELETED < ?")) {
+                preparedStatement.setObject(1, deleteAllBefore);
+                long deleted = preparedStatement.executeUpdate();
+                if (deleted > 0) {
+                    log.info("deleted channel config: {}", deleted);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        BotMetrics.databaseTimer("deleteOldChannelConfigThatAreMarked", stopwatch.elapsed());
+    }
 
     private MessageDataDTO transformResultSet2MessageDataDTO(ResultSet resultSet) throws SQLException {
         if (resultSet.next()) {
@@ -235,7 +287,7 @@ public class PersistenceManagerImpl implements PersistenceManager {
     }
 
     @Override
-    public void markAsDeleted(long channelId, long messageId) {
+    public void markMessageDataAsDeleted(long channelId, long messageId) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         try (Connection con = databaseConnector.getConnection()) {
             try (PreparedStatement preparedStatement = con.prepareStatement("UPDATE MESSAGE_DATA SET MARKED_DELETED = ?  WHERE CHANNEL_ID = ? AND MESSAGE_ID = ?")) {
@@ -535,15 +587,18 @@ public class PersistenceManagerImpl implements PersistenceManager {
         BotMetrics.databaseTimer("deleteAllChannelConfig", stopwatch.elapsed());
     }
 
-
     @Override
-    public void deleteMessageConfig(UUID configUUID) {
+    public void markMessageConfigAsDeleted(UUID configUUID) {
         Stopwatch stopwatch = Stopwatch.createStarted();
+
         try (Connection con = databaseConnector.getConnection()) {
 
-            try (PreparedStatement preparedStatement = con.prepareStatement("DELETE FROM MESSAGE_CONFIG WHERE CONFIG_ID = ?")) {
-                preparedStatement.setObject(1, configUUID);
-                preparedStatement.execute();
+            try (PreparedStatement preparedStatement = con.prepareStatement("""
+                    UPDATE MESSAGE_CONFIG SET MARKED_DELETED = ?
+                    where CONFIG_ID = ? and MARKED_DELETED is null;
+                    """)) {
+                preparedStatement.setObject(1, LocalDateTime.now());
+                preparedStatement.setObject(2, configUUID);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -671,6 +726,89 @@ public class PersistenceManagerImpl implements PersistenceManager {
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    @Override
+    public long markDeleteAllForGuild(List<Long> guildIds) {
+        if (guildIds == null || guildIds.isEmpty()) {
+            return 0L;
+        }
+
+        long totalMarked = 0L;
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        try (Connection con = databaseConnector.getConnection()) {
+            final LocalDateTime markedAsDeletedTime = LocalDateTime.now();
+            final String inList = guildIds.stream().map(Object::toString).collect(Collectors.joining(","));
+            Stopwatch messageConfigStopwatch = Stopwatch.createStarted();
+
+            try (PreparedStatement preparedStatement = con.prepareStatement("""
+                    UPDATE MESSAGE_CONFIG SET MARKED_DELETED = ?
+                     where MARKED_DELETED is null and GUILD_ID IN (
+                    """
+                    + inList + ");")) {
+                preparedStatement.setObject(1, markedAsDeletedTime);
+                totalMarked += preparedStatement.executeUpdate();
+                BotMetrics.databaseTimer("markDeleteAllForGuild-messageConfig", messageConfigStopwatch.elapsed());
+            }
+
+            Stopwatch messageDataStopwatch = Stopwatch.createStarted();
+            try (PreparedStatement preparedStatement = con.prepareStatement("""
+                    UPDATE MESSAGE_DATA SET MARKED_DELETED = ?
+                     where MARKED_DELETED is null and GUILD_ID IN (
+                    """
+                    + inList + ");")) {
+                preparedStatement.setObject(1, markedAsDeletedTime);
+                totalMarked += preparedStatement.executeUpdate();
+                BotMetrics.databaseTimer("markDeleteAllForGuild-messageData", messageDataStopwatch.elapsed());
+            }
+
+            Stopwatch channelConfigStopwatch = Stopwatch.createStarted();
+            try (PreparedStatement preparedStatement = con.prepareStatement("""
+                    UPDATE CHANNEL_CONFIG SET MARKED_DELETED = ?
+                     where MARKED_DELETED is null and GUILD_ID IN (
+                    """
+                    + inList + ");")) {
+                preparedStatement.setObject(1, markedAsDeletedTime);
+                totalMarked += preparedStatement.executeUpdate();
+                BotMetrics.databaseTimer("markDeleteAllForGuild-channelConfig", channelConfigStopwatch.elapsed());
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+        BotMetrics.databaseTimer("markDeleteAllForGuild", stopwatch.elapsed());
+        return totalMarked;
+    }
+
+    @Override
+    public long undoMarkDelete(long guildId) {
+        long totalMarked = 0L;
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        try (Connection con = databaseConnector.getConnection()) {
+            Stopwatch messageConfigStopwatch = Stopwatch.createStarted();
+
+            try (PreparedStatement preparedStatement = con.prepareStatement("""
+                    UPDATE MESSAGE_CONFIG SET MARKED_DELETED = null
+                    where GUILD_ID = ?;
+                    """)) {
+                preparedStatement.setLong(1, guildId);
+                totalMarked += preparedStatement.executeUpdate();
+                BotMetrics.databaseTimer("undoMarkDelete-messageConfig", messageConfigStopwatch.elapsed());
+            }
+
+            Stopwatch channelConfigStopwatch = Stopwatch.createStarted();
+            try (PreparedStatement preparedStatement = con.prepareStatement("""
+                    UPDATE CHANNEL_CONFIG SET MARKED_DELETED = null
+                    where GUILD_ID = ?;
+                    """)) {
+                preparedStatement.setLong(1, guildId);
+                totalMarked += preparedStatement.executeUpdate();
+                BotMetrics.databaseTimer("undoMarkDelete-channelConfig", channelConfigStopwatch.elapsed());
+            }
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+        BotMetrics.databaseTimer("undoMarkDelete", stopwatch.elapsed());
+        return totalMarked;
     }
 
     private record SavedNamedConfigIdCreationDate(UUID id, String commandId, String name, Timestamp creationDate) {

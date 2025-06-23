@@ -27,7 +27,7 @@ public interface PersistenceManager {
     @NonNull
     Set<Long> getAllActiveMessageIdsForConfig(@NonNull UUID configUUID);
 
-    void markAsDeleted(long channelId, long messageId);
+    void markMessageDataAsDeleted(long channelId, long messageId);
 
     void deleteStateForMessage(long channelId, long messageId);
 
@@ -57,7 +57,7 @@ public interface PersistenceManager {
 
     Optional<MessageConfigDTO> getNewestMessageDataInChannel(long channelId, LocalDateTime since, Set<String> commandIds);
 
-    void deleteMessageConfig(UUID configUUID);
+    void markMessageConfigAsDeleted(UUID configUUID);
 
     /**
      * If there are commands with the same name, the last used one will be returned
@@ -67,4 +67,15 @@ public interface PersistenceManager {
     List<String> getNamedCommandsChannel(long channelId);
 
     void copyChannelConfig(@NonNull ChildrenChannelCreationEvent event);
+
+    /**
+     * when a guild leaves or is not there on restarting the bot
+     */
+    long markDeleteAllForGuild(List<Long> guildIds);
+
+    /**
+     * if a guild rejoins, only for message config and channel config
+     */
+    long undoMarkDelete(long guildId);
+
 }

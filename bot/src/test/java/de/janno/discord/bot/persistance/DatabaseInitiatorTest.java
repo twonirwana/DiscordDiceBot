@@ -46,7 +46,8 @@ class DatabaseInitiatorTest {
                 "configGuildNull",
                 "configName",
                 "messageData_delete",
-                "messageConfig_deleteIndex");
+                "messageConfig_deleteIndex",
+                "config_delete");
     }
 
     @Test
@@ -74,7 +75,8 @@ class DatabaseInitiatorTest {
                 "configGuildNull",
                 "configName",
                 "messageData_delete",
-                "messageConfig_deleteIndex");
+                "messageConfig_deleteIndex",
+                "config_delete");
     }
 
 }
