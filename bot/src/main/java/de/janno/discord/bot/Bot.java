@@ -106,7 +106,9 @@ public class Bot {
                     @Override
                     public void unmarkDataOfJoiningGuilds(long joiningGuildId) {
                         long unmarkCount = persistenceManager.undoMarkDelete(joiningGuildId);
-                        log.info("Unmark configs after rejoin: {}", unmarkCount);
+                        if (unmarkCount > 0) {
+                            log.info("Unmark configs after rejoin: {}", unmarkCount);
+                        }
                         BotMetrics.unmarkDeleteAfterRejoin(unmarkCount);
                     }
 
@@ -130,10 +132,6 @@ public class Bot {
 
         if (allGuildIdsInPersistence.isEmpty()) {
             log.error("No existing guilds found");
-            return;
-        }
-        if (guildIdsAtStartup.stream().anyMatch(guildId -> !allGuildIdsInPersistence.contains(guildId))) {
-            log.error("A guild in the startup set {} was not in the persisted set: {}", guildIdsAtStartup, allGuildIdsInPersistence);
             return;
         }
         List<Long> guildsToDelete = allGuildIdsInPersistence.stream()
