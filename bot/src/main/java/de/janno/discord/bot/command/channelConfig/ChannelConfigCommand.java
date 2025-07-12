@@ -192,7 +192,8 @@ public class ChannelConfigCommand implements SlashCommand {
                         split = s.split(REPLACE_NAME_VALUE_DELIMITER);
                         type = Alias.Type.Replace;
                     }
-                    return new Alias(split[0], split[1], type);
+                    final String aliasWithMultiLine = split[1].replace("\\n", "\n");
+                    return new Alias(split[0], aliasWithMultiLine, type);
                 })
                 .toList();
     }
@@ -370,11 +371,13 @@ public class ChannelConfigCommand implements SlashCommand {
             CommandInteractionOption commandInteractionOption = event.getOption(SAVE_ALIAS_OPTION_NAME).get();
             String name = commandInteractionOption.getStringSubOptionWithName(ALIAS_NAME_OPTION_NAME).orElseThrow();
             String value = commandInteractionOption.getStringSubOptionWithName(ALIAS_VALUE_OPTION_NAME).orElseThrow();
+            final String aliasValueWithMultiLine = value.replace("\\n", "\n");
+
             Alias.Type type = commandInteractionOption.getStringSubOptionWithName(TYPE_OPTION_NAME)
                     .map(Alias.Type::of)
                     .orElse(Alias.Type.Replace);
 
-            Alias alias = new Alias(name, value, type);
+            Alias alias = new Alias(name, aliasValueWithMultiLine, type);
             saveAliasesConfig(List.of(alias), channelId, event.getGuildId(), userId, uuidSupplier, null);
             log.info("{}: save {} alias: {}",
                     event.getRequester().toLogString(),

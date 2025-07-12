@@ -327,6 +327,33 @@ public class DirectRollCommandMockTest {
     }
 
     @Test
+    void multiLineAlias() {
+        DirectRollCommand directRollCommand = new DirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
+        ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
+
+        SlashEventAdaptorMock slashEvent1 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("alias")
+                .option(CommandInteractionOption.builder()
+                        .name("save")
+                        .option(CommandInteractionOption.builder().name("name").stringValue("att").build())
+                        .option(CommandInteractionOption.builder().name("value").stringValue("2d20_'\\n'_1d6").build())
+                        .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("all_users_in_this_channel").build())
+                .build()));
+        channelConfig.handleSlashCommandEvent(slashEvent1, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
+
+
+        SlashEventAdaptorMock slashEvent2 = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("expression")
+                .stringValue("att")
+                .build()));
+        directRollCommand.handleSlashCommandEvent(slashEvent2, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
+
+        expect.scenario("event1").toMatchSnapshot(slashEvent1.getSortedActions());
+        expect.scenario("event2").toMatchSnapshot(slashEvent2.getSortedActions());
+    }
+
+    @Test
     void userChannelAlias() {
         DirectRollCommand directRollCommand = new DirectRollCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
         ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);

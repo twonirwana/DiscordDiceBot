@@ -26,6 +26,20 @@ de.janno.discord.bot.command.directRoll.DirectRollCommandMockTest.invalidExpress
 ]
 
 
+de.janno.discord.bot.command.directRoll.DirectRollCommandMockTest.multiLineAlias[event1]=[
+  [
+    "reply: `commandString`\nSaved new alias"
+  ]
+]
+
+
+de.janno.discord.bot.command.directRoll.DirectRollCommandMockTest.multiLineAlias[event2]=[
+  [
+    "replyWithEmbedOrMessageDefinition: EmbedOrMessageDefinition(title=2d20_'\n'_1d6 ⇒ 20, 9\n2, descriptionOrContent=, fields=[], componentRowDefinitions=[], hasImage=true, type=EMBED, userReference=true, sendToOtherChannelId=null)"
+  ]
+]
+
+
 de.janno.discord.bot.command.directRoll.DirectRollCommandMockTest.roll_config_compact[event1]=[
   [
     "reply: `commandString`\nSaved direct roll channel config"

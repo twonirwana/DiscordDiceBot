@@ -3,7 +3,6 @@ package de.janno.discord.bot;
 import de.janno.discord.connector.api.MessageState;
 import de.janno.discord.connector.api.Requester;
 import de.janno.discord.connector.api.SlashEventAdaptor;
-import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import de.janno.discord.connector.api.slash.CommandInteractionOption;
@@ -22,11 +21,11 @@ public class SlashEventAdaptorMock implements SlashEventAdaptor {
     public static final long CHANNEL_ID = 1L;
     public static final Long GUILD_ID = null;
     public final List<CommandInteractionOption> commandInteractionOptions;
+    public final long userId;
     @Getter
     private final List<String> actions = new ArrayList<>();
     @Getter
     private final List<EmbedOrMessageDefinition> allReplays = new ArrayList<>();
-    private final long userId;
     private final Locale userLocale;
     @Getter
     @Setter

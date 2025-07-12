@@ -1,3 +1,16 @@
+de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.aliasMultiLine=[
+  {
+    "configUUID": "00000000-0000-0000-0000-000000000000",
+    "guildId": 0,
+    "channelId": 1,
+    "userId": 0,
+    "commandId": "channel_config",
+    "configClassId": "UserAliasConfig",
+    "config": "---\naliasList:\n- name: \"att\"\n  value: \"2d20_'\\n'_1d6\"\n  type: \"Replace\"\nname: null\n"
+  }
+]
+
+
 de.janno.discord.bot.command.channelConfig.ChannelConfigMockTest.autoCompleteMatchingChannelAliasScope=[
   [
     {
