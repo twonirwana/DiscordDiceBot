@@ -5,6 +5,7 @@ import au.com.origin.snapshots.junit5.SnapshotExtension;
 import de.janno.discord.bot.SlashEventAdaptorMock;
 import de.janno.discord.bot.command.directRoll.DirectRollCommand;
 import de.janno.discord.bot.dice.CachingDiceEvaluator;
+import de.janno.discord.bot.persistance.ChannelConfigDTO;
 import de.janno.discord.bot.persistance.PersistenceManager;
 import de.janno.discord.bot.persistance.PersistenceManagerImpl;
 import de.janno.discord.connector.api.AutoCompleteAnswer;
@@ -21,7 +22,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SnapshotExtension.class)
 public class ChannelConfigMockTest {
@@ -129,6 +133,27 @@ public class ChannelConfigMockTest {
         List<AutoCompleteAnswer> res = channelConfig.getAutoCompleteAnswer(new AutoCompleteRequest("name", null, List.of()), Locale.ENGLISH, 1L, 1L, 0L);
 
         expect.toMatchSnapshot(res);
+    }
+
+    @Test
+    void aliasMultiLine() {
+        ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
+
+        SlashEventAdaptorMock slashEventAdaptorMock = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
+                .name("alias")
+                .option(CommandInteractionOption.builder()
+                        .name("save")
+                        .option(CommandInteractionOption.builder().name("name").stringValue("att").build())
+                        .option(CommandInteractionOption.builder().name("value").stringValue("2d20_'\\n'_1d6").build())
+                        .build())
+                .option(CommandInteractionOption.builder().name("scope").stringValue("current_user_in_this_channel").build())
+                .build()));
+
+        channelConfig.handleSlashCommandEvent(slashEventAdaptorMock, () -> UUID.fromString("00000000-0000-0000-0000-000000000000"), Locale.ENGLISH).block();
+
+        Optional<ChannelConfigDTO> res = persistenceManager.getUserChannelConfig(SlashEventAdaptorMock.CHANNEL_ID, slashEventAdaptorMock.userId, AliasHelper.USER_ALIAS_CONFIG_TYPE_ID);
+        assertThat(res).isPresent();
+        expect.toMatchSnapshot(res.get());
     }
 
     @Test
