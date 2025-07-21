@@ -41,7 +41,7 @@ dependencies {
     testImplementation("org.mockito:mockito-core:5.18.0")
     testImplementation("org.mockito:mockito-inline:5.2.0")
     testImplementation("io.projectreactor:reactor-test")
-    testImplementation("commons-io:commons-io:2.19.0")
+    testImplementation("commons-io:commons-io:2.20.0")
 
 }
 
