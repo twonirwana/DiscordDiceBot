@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Stopwatch;
 import com.google.common.base.Strings;
 import com.google.common.io.Resources;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import de.janno.discord.connector.api.*;
 import io.avaje.config.Config;
 import lombok.NonNull;
@@ -33,7 +34,10 @@ import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.internal.utils.IOUtil;
+import okhttp3.ConnectionPool;
+import okhttp3.Dispatcher;
 import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -45,6 +49,8 @@ import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -65,15 +71,34 @@ public class JdaClient {
         final Stopwatch startStopwatch = Stopwatch.createStarted();
         final Scheduler scheduler = Schedulers.boundedElastic();
         final Set<Long> botInGuildIdSet = new ConcurrentSkipListSet<>();
-        final Duration timeout = Duration.of(Config.getLong("http.timeoutSec"), ChronoUnit.SECONDS);
+        final int CONCURRENCY_LEVEL = Config.getInt("http.thread.pool.size", 20);
+        final Duration timeout = Duration.of(Config.getLong("http.timeoutSec", 30), ChronoUnit.SECONDS);
+        ConnectionPool connectionPool = new ConnectionPool(CONCURRENCY_LEVEL, 5, TimeUnit.MINUTES);
+        JdaMetrics.registerHttpClientConnectionPool(connectionPool, CONCURRENCY_LEVEL);
+        Dispatcher dispatcher = new Dispatcher(new ThreadPoolExecutor(8, 8,
+                1, TimeUnit.MINUTES,
+                new LinkedBlockingQueue<>(16),
+                new ThreadFactoryBuilder().setNameFormat("okhttp-dispatcher-%d").setDaemon(true).build(),
+                new ThreadPoolExecutor.CallerRunsPolicy()));
+        dispatcher.setMaxRequestsPerHost(CONCURRENCY_LEVEL);
+        dispatcher.setMaxRequests(CONCURRENCY_LEVEL);
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor(log::debug);
+        logging.setLevel(logLevelFromString(Config.get("http.logging", "NONE")));
+
+        Config.onChange("http.logging", s -> logging.setLevel(logLevelFromString(s)));
+
         final OkHttpClient okHttpClient = IOUtil.newHttpClientBuilder()
                 .eventListener(JdaMetrics.getOkHttpEventListener())
+                .addInterceptor(logging)
                 .writeTimeout(timeout)
                 .readTimeout(timeout)
                 .connectTimeout(timeout)
+                .connectionPool(connectionPool)
+                .dispatcher(dispatcher)
+                .pingInterval(Duration.ofSeconds(3))
+                .retryOnConnectionFailure(true)
                 .build();
 
-        JdaMetrics.registerHttpClient(okHttpClient);
         final String token = Config.get("token");
         if (Strings.isNullOrEmpty(token)) {
             throw new IllegalArgumentException("Missing discord token");
@@ -236,6 +261,12 @@ public class JdaClient {
         SlashCommandRegistry.builder()
                 .addSlashCommands(slashCommands)
                 .registerSlashCommands(shards.getFirst(), disableCommandUpdate);
+    }
+
+    private static HttpLoggingInterceptor.Level logLevelFromString(String level) {
+        return HttpLoggingInterceptor.Level.getEntries().stream()
+                .filter(l -> l.name().equals(level))
+                .findFirst().orElse(HttpLoggingInterceptor.Level.NONE);
     }
 
     @VisibleForTesting
