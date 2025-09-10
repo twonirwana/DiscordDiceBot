@@ -12,7 +12,7 @@ dependencyResolutionManagement {
         create("libs") {
             library("lombok", "org.projectlombok:lombok:1.18.40")
             library("micrometer-core", "io.micrometer:micrometer-core:1.15.4")
-            library("reactor-core", "io.projectreactor:reactor-core:3.7.9")
+            library("reactor-core", "io.projectreactor:reactor-core:3.7.11")
             library("guava", "com.google.guava:guava:33.4.8-jre")
             library("assertj-core", "org.assertj:assertj-core:3.27.4")
             library("logback-classic", "ch.qos.logback:logback-classic:1.5.18")
