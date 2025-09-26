@@ -6,34 +6,36 @@ import de.janno.discord.connector.api.message.ButtonDefinition;
 import de.janno.discord.connector.api.message.ComponentDefinition;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.DropdownDefinition;
+import net.dv8tion.jda.api.components.MessageTopLevelComponent;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.actionrow.ActionRowChildComponent;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.components.selections.SelectOption;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.ItemComponent;
-import net.dv8tion.jda.api.interactions.components.LayoutComponent;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
-import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
-import net.dv8tion.jda.internal.interactions.component.ButtonImpl;
-import net.dv8tion.jda.internal.interactions.component.StringSelectMenuImpl;
+import net.dv8tion.jda.internal.components.buttons.ButtonImpl;
+import net.dv8tion.jda.internal.components.selections.StringSelectMenuImpl;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class MessageComponentConverter {
 
     public static MessageCreateData messageComponent2MessageLayout(String content, List<ComponentRowDefinition> rows) {
-        LayoutComponent[] layoutComponents = componentRowDefinition2LayoutComponent(rows);
         return new MessageCreateBuilder()
+                .useComponentsV2(false)
                 .addContent(content)
-                .addComponents(layoutComponents)
+                .addComponents(componentRowDefinition2LayoutComponent(rows))
                 .setSuppressedNotifications(true)
                 .build();
     }
 
-    public static LayoutComponent[] componentRowDefinition2LayoutComponent(List<ComponentRowDefinition> rows) {
+    public static List<? extends MessageTopLevelComponent> componentRowDefinition2LayoutComponent(List<ComponentRowDefinition> rows) {
+        final AtomicInteger selectMenuUniqueId = new AtomicInteger(0); //todo could be null or 0?
         Set<String> invalidIds = rows.stream()
                 .flatMap(r -> r.getComponentDefinitions().stream())
                 .map(ComponentDefinition::getId)
@@ -43,14 +45,14 @@ public class MessageComponentConverter {
         return rows.stream()
                 .map(c -> ActionRow.of(
                         c.getComponentDefinitions().stream()
-                                .map(MessageComponentConverter::mapComponentDefinition2ItemComponent)
+                                .map(cd -> mapComponentDefinition2ItemComponent(cd, selectMenuUniqueId))
                                 .toList())
-                ).toArray(LayoutComponent[]::new);
+                ).toList();
     }
 
-    private static ItemComponent mapComponentDefinition2ItemComponent(ComponentDefinition componentDefinition) {
+    private static ActionRowChildComponent mapComponentDefinition2ItemComponent(ComponentDefinition componentDefinition, AtomicInteger selectMenuUniqueId) {
         if (componentDefinition instanceof DropdownDefinition d) {
-            return new StringSelectMenuImpl(d.getId(), d.getPlaceholder(), d.getMinValues(), d.getMaxValues(), d.isDisabled(), dropdownOptions2SelectOptions(d.getOptions()));
+            return new StringSelectMenuImpl(d.getId(), selectMenuUniqueId.incrementAndGet(), d.getPlaceholder(), d.getMinValues(), d.getMaxValues(), d.isDisabled(), dropdownOptions2SelectOptions(d.getOptions()), true);
         } else if (componentDefinition instanceof ButtonDefinition b) {
             return new ButtonImpl(b.getId(), b.getLabel(), ButtonStyle.fromKey(b.getStyle().getValue()), b.isDisabled(),
                     Optional.ofNullable(b.getEmoji())
