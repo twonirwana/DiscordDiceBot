@@ -35,7 +35,7 @@ public class MessageComponentConverter {
     }
 
     public static List<? extends MessageTopLevelComponent> componentRowDefinition2LayoutComponent(List<ComponentRowDefinition> rows) {
-        final AtomicInteger selectMenuUniqueId = new AtomicInteger(0); //todo could be null or 0?
+        final AtomicInteger selectMenuUniqueId = new AtomicInteger(0);
         Set<String> invalidIds = rows.stream()
                 .flatMap(r -> r.getComponentDefinitions().stream())
                 .map(ComponentDefinition::getId)
