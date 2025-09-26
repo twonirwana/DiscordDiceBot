@@ -3,36 +3,43 @@ de.janno.discord.connector.jda.MessageComponentConverterTest.messageComponent2Me
     "content": "welcome",
     "embeds": [ ],
     "files": [ ],
+    "allDistinctFiles": [ ],
     "components": [
       {
+        "uniqueId": -1,
         "components": [
           {
-            "id": "id",
+            "customId": "id",
+            "uniqueId": -1,
             "label": "label",
             "style": "SECONDARY",
             "disabled": true,
             "emoji": {
               "name": "😁"
             },
+            "enabled": false,
             "messageCompatible": true,
-            "modalCompatible": false
+            "modalCompatible": false,
+            "unknownComponent": false
           }
         ],
-        "empty": false,
         "enabled": false,
-        "valid": true,
-        "disabled": true,
         "messageCompatible": true,
-        "modalCompatible": false
+        "disabled": true,
+        "modalCompatible": false,
+        "unknownComponent": false
       },
       {
+        "uniqueId": -1,
         "components": [
           {
             "id": "id",
             "placeholder": "placeholder",
+            "uniqueId": 1,
             "minValues": 1,
             "maxValues": 1,
             "disabled": true,
+            "required": true,
             "options": [
               {
                 "label": "label",
@@ -45,16 +52,17 @@ de.janno.discord.connector.jda.MessageComponentConverterTest.messageComponent2Me
                 "default": true
               }
             ],
+            "enabled": false,
             "messageCompatible": true,
-            "modalCompatible": false
+            "modalCompatible": true,
+            "unknownComponent": false
           }
         ],
-        "empty": false,
         "enabled": false,
-        "valid": true,
-        "disabled": true,
         "messageCompatible": true,
-        "modalCompatible": false
+        "disabled": true,
+        "modalCompatible": false,
+        "unknownComponent": false
       }
     ],
     "mentions": {
@@ -73,9 +81,10 @@ de.janno.discord.connector.jda.MessageComponentConverterTest.messageComponent2Me
     },
     "tts": false,
     "flags": 4096,
-    "suppressedNotifications": true,
+    "usingComponentsV2": false,
     "mentionRepliedUser": true,
-    "voiceMessage": false,
-    "suppressEmbeds": false
+    "suppressedNotifications": true,
+    "suppressEmbeds": false,
+    "voiceMessage": false
   }
 ]
