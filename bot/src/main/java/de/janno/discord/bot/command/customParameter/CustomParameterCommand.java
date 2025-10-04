@@ -64,11 +64,12 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
     private final static String BUTTON_VALUE_DELIMITER = "/";
     private final static Pattern BUTTON_VALUE_PATTERN = Pattern.compile(RANGE_DELIMITER + "(.+" + BUTTON_VALUE_DELIMITER + ".+)}", Pattern.DOTALL);
     private final static Pattern PARAMETER_OPTION_EMPTY_PATTERN = Pattern.compile(RANGE_DELIMITER + ".*" + BUTTON_VALUE_DELIMITER + "\\s*" + BUTTON_VALUE_DELIMITER + ".*}", Pattern.DOTALL);
-    private static final String STATE_DATA_TYPE_ID = "CustomParameterStateDataV2";
-    private static final String STATE_DATA_TYPE_ID_LEGACY = "CustomParameterStateData";
+    private final static String STATE_DATA_TYPE_ID = "CustomParameterStateDataV2";
+    private final static String STATE_DATA_TYPE_ID_LEGACY = "CustomParameterStateData";
     private final static Pattern LABEL_MATCHER = Pattern.compile("@[^}]+$", Pattern.DOTALL);
     private final static String SKIPPED_BY_PATH_VALUE = "";
     private final static String SKIPPED_BY_DIRECT_ROLL_VALUE = "''";
+    private static final int MAX_NUMBER_OF_CUSTOM_BUTTONS = 23;
     private final DiceEvaluatorAdapter diceEvaluatorAdapter;
 
     public CustomParameterCommand(PersistenceManager persistenceManager, CachingDiceEvaluator cachingDiceEvaluator) {
@@ -239,7 +240,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
                 String buttonValueExpression = valueMatcher.group(1);
                 AtomicInteger counter = new AtomicInteger(1);
                 builder.add(new Parameter(parameterExpression, name, Arrays.stream(buttonValueExpression.split(BUTTON_VALUE_DELIMITER))
-                        .limit(23)
+                        .limit(MAX_NUMBER_OF_CUSTOM_BUTTONS)
                         .filter(s -> !Strings.isNullOrEmpty(s))
                         .map(s -> {
                             //if a label exists
@@ -314,7 +315,7 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         if (matcher.find()) {
             int min = Integer.parseInt(matcher.group(1));
             int max = Integer.parseInt(matcher.group(2));
-            return Math.min(Math.max(min, max), min + 23);
+            return Math.min(Math.max(min, max), min + MAX_NUMBER_OF_CUSTOM_BUTTONS);
         }
         return 15;
     }

@@ -10,6 +10,7 @@ import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.components.MessageTopLevelComponent;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.ThreadChannel;
@@ -19,7 +20,6 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import net.dv8tion.jda.api.interactions.InteractionHook;
-import net.dv8tion.jda.api.interactions.components.LayoutComponent;
 import net.dv8tion.jda.api.requests.ErrorResponse;
 import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.utils.AttachedFile;
@@ -67,7 +67,7 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
             String rollRequesterMention,
             String rollRequesterAvatar,
             String rollRequesterId) {
-        LayoutComponent[] layoutComponents = MessageComponentConverter.componentRowDefinition2LayoutComponent(messageDefinition.getComponentRowDefinitions());
+        final List<? extends MessageTopLevelComponent> layoutComponents = MessageComponentConverter.componentRowDefinition2LayoutComponent(messageDefinition.getComponentRowDefinitions());
         switch (messageDefinition.getType()) {
             case EMBED -> {
                 EmbedBuilder builder = convertToEmbedMessage(messageDefinition, rollRequesterName, rollRequesterAvatar, rollRequesterId);
@@ -89,18 +89,18 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
                                                          String rollRequesterMention) {
         Preconditions.checkArgument(messageDefinition.getType() == EmbedOrMessageDefinition.Type.MESSAGE);
         MessageCreateBuilder builder = new MessageCreateBuilder();
-        final String answerString;
+        final String content;
         if (rollRequesterMention != null) {
-            answerString = "%s: %s%s".formatted(rollRequesterMention,
+            content = "%s: %s%s".formatted(rollRequesterMention,
                     Optional.ofNullable(messageDefinition.getDescriptionOrContent()).map(s -> s + " ").orElse(""),
                     messageDefinition.getFields().stream().map(EmbedOrMessageDefinition.Field::getName).collect(Collectors.joining(" ")));
         } else {
-            answerString = "%s%s".formatted(Optional.ofNullable(messageDefinition.getDescriptionOrContent()).map(s -> s + " ").orElse(""),
+            content = "%s%s".formatted(Optional.ofNullable(messageDefinition.getDescriptionOrContent()).map(s -> s + " ").orElse(""),
                     messageDefinition.getFields().stream().map(EmbedOrMessageDefinition.Field::getName).collect(Collectors.joining(" ")));
         }
-
+        builder.useComponentsV2(false);
         builder.setSuppressedNotifications(true);
-        builder.setContent(StringUtils.abbreviate(encodeUTF8(answerString), Message.MAX_CONTENT_LENGTH));
+        builder.setContent(StringUtils.abbreviate(encodeUTF8(content), Message.MAX_CONTENT_LENGTH));
         return builder.build();
     }
 
@@ -142,7 +142,7 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
             @NonNull EmbedOrMessageDefinition messageDefinition,
             boolean ephemeral,
             String rollRequesterId) {
-        LayoutComponent[] layoutComponents = MessageComponentConverter.componentRowDefinition2LayoutComponent(messageDefinition.getComponentRowDefinitions());
+        List<? extends MessageTopLevelComponent> layoutComponents = MessageComponentConverter.componentRowDefinition2LayoutComponent(messageDefinition.getComponentRowDefinitions());
         switch (messageDefinition.getType()) {
             case EMBED -> {
                 //reply don't need avatar and name, they are already displayed
