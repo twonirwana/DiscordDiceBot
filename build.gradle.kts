@@ -1,13 +1,13 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("com.gradleup.shadow") version "9.2.2"
     id("jacoco-report-aggregation")
     id("java")
 }
 
 apply(plugin = "java")
-apply(plugin = "com.github.johnrengelman.shadow")
+apply(plugin = "com.gradleup.shadow")
 apply(plugin = "jacoco")
 
 
