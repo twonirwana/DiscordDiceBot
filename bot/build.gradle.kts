@@ -37,7 +37,7 @@ dependencies {
 
     testImplementation("io.github.origin-energy:java-snapshot-testing-junit5:4.0.8")
     testImplementation("io.github.origin-energy:java-snapshot-testing-plugin-jackson:4.0.8")
-    testImplementation("io.projectreactor:reactor-test:3.7.11")
+    testImplementation("io.projectreactor:reactor-test:3.7.12")
     testImplementation("org.mockito:mockito-core:5.20.0")
     testImplementation("org.mockito:mockito-inline:5.2.0")
     testImplementation("io.projectreactor:reactor-test")
