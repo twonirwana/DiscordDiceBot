@@ -5,7 +5,7 @@ plugins {
 dependencies {
     implementation(project(":discord-connector:api"))
 
-    implementation("net.dv8tion:JDA:6.1.0") {
+    implementation("net.dv8tion:JDA:6.1.1") {
         exclude(module = "opus-java")
         exclude(module = "tink")
     }
