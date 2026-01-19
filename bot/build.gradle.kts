@@ -5,7 +5,7 @@ plugins {
 
 dependencies {
     implementation(project(":discord-connector"))
-    implementation("io.github.twonirwana:dice-evaluator:v0.10.2")
+    implementation("io.github.twonirwana:dice-evaluator:v0.11.0")
 
     implementation(libs.log4j.to.slf4j)
     implementation(libs.reactor.core)
