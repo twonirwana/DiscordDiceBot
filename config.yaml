@@ -3,7 +3,10 @@ sendStatusMessage: true
 newsGuildId:
 newsChannelId:
 newsChannelPublishWaitMilliSec: 1000
-http.timeoutSec: 30
+http:
+  timeoutSec: 30
+  thread.pool.size: 20
+  logging: NONE
 shardsTotal:
 shardIds:
 disableCommandUpdate: false
