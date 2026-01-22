@@ -5,7 +5,7 @@ plugins {
 
 dependencies {
     implementation(project(":discord-connector"))
-    implementation("io.github.twonirwana:dice-evaluator:v0.10.2")
+    implementation("io.github.twonirwana:dice-evaluator:v0.11.0")
 
     implementation(libs.log4j.to.slf4j)
     implementation(libs.reactor.core)
@@ -19,17 +19,17 @@ dependencies {
     implementation(libs.avaje.config)
     implementation(libs.avaje.slf4j)
     implementation(libs.emoji)
-    implementation("io.micrometer:micrometer-registry-prometheus:1.16.0")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.16.2")
     implementation("com.h2database:h2:2.4.240")
     implementation("org.apache.derby:derby:10.17.1.0")
     implementation("org.apache.derby:derbyclient:10.17.1.0")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.20.1")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.21.0")
     implementation("org.apache.xmlgraphics:batik:1.19")
     implementation("org.apache.xmlgraphics:batik-transcoder:1.19")
     implementation("org.apache.xmlgraphics:batik-codec:1.19")
 
-    testImplementation("org.junit.jupiter:junit-jupiter:6.0.1")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:6.0.1")
+    testImplementation("org.junit.jupiter:junit-jupiter:6.0.2")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:6.0.2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation(libs.assertj.core)
     testCompileOnly(libs.lombok)
@@ -37,8 +37,8 @@ dependencies {
 
     testImplementation("io.github.origin-energy:java-snapshot-testing-junit5:4.0.8")
     testImplementation("io.github.origin-energy:java-snapshot-testing-plugin-jackson:4.0.8")
-    testImplementation("io.projectreactor:reactor-test:3.8.0")
-    testImplementation("org.mockito:mockito-core:5.20.0")
+    testImplementation("io.projectreactor:reactor-test:3.8.2")
+    testImplementation("org.mockito:mockito-core:5.21.0")
     testImplementation("org.mockito:mockito-inline:5.2.0")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("commons-io:commons-io:2.21.0")
@@ -47,7 +47,7 @@ dependencies {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion.set(JavaLanguageVersion.of(25))
     }
 }
 

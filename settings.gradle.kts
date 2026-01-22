@@ -11,16 +11,16 @@ dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
             library("lombok", "org.projectlombok:lombok:1.18.42")
-            library("micrometer-core", "io.micrometer:micrometer-core:1.16.0")
-            library("reactor-core", "io.projectreactor:reactor-core:3.8.0")
+            library("micrometer-core", "io.micrometer:micrometer-core:1.16.2")
+            library("reactor-core", "io.projectreactor:reactor-core:3.8.2")
             library("guava", "com.google.guava:guava:33.5.0-jre")
             library("assertj-core", "org.assertj:assertj-core:3.27.6")
-            library("logback-classic", "ch.qos.logback:logback-classic:1.5.21")
-            library("log4j-to-slf4j", "org.apache.logging.log4j:log4j-to-slf4j:2.25.2")
+            library("logback-classic", "ch.qos.logback:logback-classic:1.5.25")
+            library("log4j-to-slf4j", "org.apache.logging.log4j:log4j-to-slf4j:2.25.3")
             library("commons-lang3", "org.apache.commons:commons-lang3:3.20.0")
-            library("commons-text", "org.apache.commons:commons-text:1.14.0")
-            library("avaje-config", "io.avaje:avaje-config:4.2")
-            library("avaje-slf4j", "io.avaje:avaje-applog-slf4j:1.0")
+            library("commons-text", "org.apache.commons:commons-text:1.15.0")
+            library("avaje-config", "io.avaje:avaje-config:5.0")
+            library("avaje-slf4j", "io.avaje:avaje-applog-slf4j:1.2")
             library("emoji", "net.fellbaum:jemoji:1.7.5")
         }
     }
