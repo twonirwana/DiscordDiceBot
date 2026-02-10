@@ -11,7 +11,7 @@ dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
             library("lombok", "org.projectlombok:lombok:1.18.42")
-            library("micrometer-core", "io.micrometer:micrometer-core:1.16.2")
+            library("micrometer-core", "io.micrometer:micrometer-core:1.16.3")
             library("reactor-core", "io.projectreactor:reactor-core:3.8.2")
             library("guava", "com.google.guava:guava:33.5.0-jre")
             library("assertj-core", "org.assertj:assertj-core:3.27.7")
