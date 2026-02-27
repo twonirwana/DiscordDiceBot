@@ -346,11 +346,13 @@ public class JdaClient {
             try {
                 jda.awaitReady();
                 log.info("ShardId={}: finished jda ready", jda.getShardInfo().getShardString());
-                JdaMetrics.startGatewayResponseTimeGauge(jda);
-                JdaMetrics.startUserCacheGauge(jda);
-                JdaMetrics.startTextChannelCacheGauge(jda);
-                JdaMetrics.startGuildCacheGauge(jda);
-                JdaMetrics.startRestLatencyGauge(jda);
+                if (Config.getBool("metric.jda.gauge", false)) {
+                    JdaMetrics.startGatewayResponseTimeGauge(jda);
+                    JdaMetrics.startUserCacheGauge(jda);
+                    JdaMetrics.startTextChannelCacheGauge(jda);
+                    JdaMetrics.startGuildCacheGauge(jda);
+                    JdaMetrics.startRestLatencyGauge(jda);
+                }
 
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);

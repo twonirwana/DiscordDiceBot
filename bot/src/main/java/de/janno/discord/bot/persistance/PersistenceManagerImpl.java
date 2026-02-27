@@ -35,18 +35,20 @@ public class PersistenceManagerImpl implements PersistenceManager {
         databaseConnector = new DatabaseConnector(url, user, password);
         DatabaseInitiator.initialize(databaseConnector);
 
-        queryGauge("db.channel.count", "select count (distinct CHANNEL_ID) from MESSAGE_DATA;", databaseConnector.getDataSource(), Set.of());
-        queryGauge("db.config.deleted.count", "select count(distinct CONFIG_ID) from MESSAGE_CONFIG where MARKED_DELETED is not null;", databaseConnector.getDataSource(), Set.of());
-        queryGauge("db.channel.config.count", "select count (distinct CHANNEL_ID) from CHANNEL_CONFIG;", databaseConnector.getDataSource(), Set.of());
-        queryGauge("db.guild.count", "select count (distinct GUILD_ID) from MESSAGE_DATA;", databaseConnector.getDataSource(), Set.of());
-        queryGauge("db.guild-null.count", "select count (distinct CHANNEL_ID) from MESSAGE_DATA where GUILD_ID is null;", databaseConnector.getDataSource(), Set.of());
-        queryGauge("db.messageDataWithConfig.count", "SELECT COUNT(*) FROM (SELECT DISTINCT CHANNEL_ID, MESSAGE_ID FROM MESSAGE_DATA WHERE CONFIG_CLASS_ID IS NOT NULL);", databaseConnector.getDataSource(), Set.of());
-        queryGauge("db.guild-30d.active", "select count (distinct GUILD_ID) from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '43200' MINUTE;", databaseConnector.getDataSource(), Set.of());
-        queryGauge("db.guild-7d.active", "select count (distinct GUILD_ID) from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '10080' MINUTE;", databaseConnector.getDataSource(), Set.of());
-        queryGauge("db.guild-1d.active", "select count (distinct GUILD_ID) from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '1440' MINUTE;", databaseConnector.getDataSource(), Set.of());
-        queryGauge("db.messageData-30d.active", "select count (MESSAGE_ID) from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '43200' MINUTE;", databaseConnector.getDataSource(), Set.of());
-        queryGauge("db.messageData-7d.active", "select count (MESSAGE_ID) from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '10080' MINUTE;", databaseConnector.getDataSource(), Set.of());
-        queryGauge("db.messageData-1d.active", "select count (MESSAGE_ID) from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '1440' MINUTE;", databaseConnector.getDataSource(), Set.of());
+        if (io.avaje.config.Config.getBool("metric.db.gauge", false)) {
+            queryGauge("db.channel.count", "select count (distinct CHANNEL_ID) from MESSAGE_DATA;", databaseConnector.getDataSource(), Set.of());
+            queryGauge("db.config.deleted.count", "select count(distinct CONFIG_ID) from MESSAGE_CONFIG where MARKED_DELETED is not null;", databaseConnector.getDataSource(), Set.of());
+            queryGauge("db.channel.config.count", "select count (distinct CHANNEL_ID) from CHANNEL_CONFIG;", databaseConnector.getDataSource(), Set.of());
+            queryGauge("db.guild.count", "select count (distinct GUILD_ID) from MESSAGE_DATA;", databaseConnector.getDataSource(), Set.of());
+            queryGauge("db.guild-null.count", "select count (distinct CHANNEL_ID) from MESSAGE_DATA where GUILD_ID is null;", databaseConnector.getDataSource(), Set.of());
+            queryGauge("db.messageDataWithConfig.count", "SELECT COUNT(*) FROM (SELECT DISTINCT CHANNEL_ID, MESSAGE_ID FROM MESSAGE_DATA WHERE CONFIG_CLASS_ID IS NOT NULL);", databaseConnector.getDataSource(), Set.of());
+            queryGauge("db.guild-30d.active", "select count (distinct GUILD_ID) from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '43200' MINUTE;", databaseConnector.getDataSource(), Set.of());
+            queryGauge("db.guild-7d.active", "select count (distinct GUILD_ID) from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '10080' MINUTE;", databaseConnector.getDataSource(), Set.of());
+            queryGauge("db.guild-1d.active", "select count (distinct GUILD_ID) from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '1440' MINUTE;", databaseConnector.getDataSource(), Set.of());
+            queryGauge("db.messageData-30d.active", "select count (MESSAGE_ID) from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '43200' MINUTE;", databaseConnector.getDataSource(), Set.of());
+            queryGauge("db.messageData-7d.active", "select count (MESSAGE_ID) from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '10080' MINUTE;", databaseConnector.getDataSource(), Set.of());
+            queryGauge("db.messageData-1d.active", "select count (MESSAGE_ID) from MESSAGE_DATA where (CURRENT_TIMESTAMP - CREATION_DATE) <= interval '1440' MINUTE;", databaseConnector.getDataSource(), Set.of());
+        }
 
         long messageDataDeleteIntervalMs = io.avaje.config.Config.getLong("db.deleteMarkMessageDataIntervalInMilliSec", 10_000);
         if (messageDataDeleteIntervalMs > 0) {
