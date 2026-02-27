@@ -25,6 +25,8 @@ db:
 metric:
   url: localhost
   port: 8080
+  db.gauge: false
+  jda.gauge: false
 diceEvaluator:
   maxNumberOfDice: 1000
   cacheSize: 10000
