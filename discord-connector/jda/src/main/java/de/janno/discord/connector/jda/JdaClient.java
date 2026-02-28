@@ -243,8 +243,10 @@ public class JdaClient {
                                     Set<Long> botInGuildIdSet,
                                     DatabaseConnector databaseConnector) {
         if (!botInGuildIdSet.contains(event.getGuild().getIdLong())) {
-            log.info("Bot started with guild: name='{}', memberCount={}", event.getGuild().getName(),
-                    event.getGuild().getMemberCount());
+            if(Config.getBool("logGuildsOnStartup", false)) {
+                log.info("Bot started with guild: name='{}', memberCount={}", event.getGuild().getName(),
+                        event.getGuild().getMemberCount());
+            }
             botInGuildIdSet.add(event.getGuild().getIdLong());
             databaseConnector.unmarkDataOfJoiningGuilds(event.getGuild().getIdLong());
         }
