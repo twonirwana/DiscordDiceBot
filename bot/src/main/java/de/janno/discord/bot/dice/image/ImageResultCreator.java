@@ -11,10 +11,8 @@ import de.janno.discord.bot.BotMetrics;
 import de.janno.evaluator.dice.RandomElement;
 import de.janno.evaluator.dice.RollElement;
 import de.janno.evaluator.dice.RollResult;
-import io.micrometer.core.instrument.Gauge;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -33,8 +31,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
 @Slf4j
 public class ImageResultCreator {
@@ -72,13 +68,11 @@ public class ImageResultCreator {
                         .map(c -> DiceImageStyle.combineStyleAndColorName(s, c)))
                 .forEach(ri -> {
                     createFolderIfMissing(ri);
-                    Gauge.builder("diceImage.cache", () -> {
-                        try (Stream<Path> files = Files.list(Paths.get("%s/%s/".formatted(CACHE_FOLDER, ri)))) {
-                            return files.count();
-                        } catch (IOException e) {
-                            return -1;
-                        }
-                    }).tag("type", ri).register(globalRegistry);
+                    try (Stream<Path> files = Files.list(Paths.get("%s/%s/".formatted(CACHE_FOLDER, ri)))) {
+                        log.info("Cache files for {}: {}", ri, files.count());
+                    } catch (IOException e) {
+                        log.error(e.getMessage());
+                    }
                 });
     }
 
