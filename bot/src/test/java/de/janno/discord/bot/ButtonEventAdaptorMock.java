@@ -14,6 +14,7 @@ import reactor.core.publisher.ParallelFlux;
 
 import java.time.OffsetDateTime;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static de.janno.discord.connector.api.BottomCustomIdUtils.CUSTOM_ID_DELIMITER;
@@ -31,7 +32,7 @@ public class ButtonEventAdaptorMock implements ButtonEventAdaptor {
     private final Set<Long> pinnedMessageIds;
     private final String invokingUser;
     private final EmbedOrMessageDefinition eventMessage;
-    private final List<EmbedOrMessageDefinition> sendMessages = new ArrayList<>();
+    private final List<EmbedOrMessageDefinition> sendMessages = new CopyOnWriteArrayList<>();
     private List<ComponentRowDefinition> editedComponentRowDefinition;
     private String permissionCheck = null;
 

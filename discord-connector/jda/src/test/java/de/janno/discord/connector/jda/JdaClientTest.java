@@ -7,7 +7,10 @@ import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
 import io.avaje.config.Config;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.SelfMember;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.NewsChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -28,6 +31,7 @@ import net.dv8tion.jda.api.requests.RestAction;
 import net.dv8tion.jda.api.requests.restaction.MessageCreateAction;
 import net.dv8tion.jda.api.sharding.ShardManager;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
+import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -271,13 +275,13 @@ class JdaClientTest {
 
 
         @Override
-        public Mono<Void> handleComponentInteractEvent(ButtonEventAdaptor event) {
+        public Mono<Void> handleComponentInteractEvent(@NonNull ButtonEventAdaptor event) {
             isCalled = true;
             return Mono.empty();
         }
 
         @Override
-        public String getCommandId() {
+        public @NonNull String getCommandId() {
             return id;
         }
 

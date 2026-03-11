@@ -48,6 +48,7 @@ public class BotMetrics {
     private final static String METRIC_USE_ALIAS_PREFIX = "useAlias";
     private final static String METRIC_ANSWER_FORMAT_PREFIX = "answerFormat";
     private final static String METRIC_PINNED_BUTTON_EVENT_PREFIX = "pinnedButtonEvent";
+    private final static String METRIC_CONCURRENT_BUTTON_EVENT_PREFIX = "concurrentButtonEvent";
     private final static String METRIC_COPY_CHANNEL_CONFIG_PREFIX = "copyChannelConfig";
     private final static String COMMAND_TAG = "command";
     private final static String UUID_USAGE_TAG = "uuidUsage";
@@ -238,6 +239,10 @@ public class BotMetrics {
 
     public static void incrementPinnedButtonMetricCounter() {
         globalRegistry.counter(METRIC_PREFIX + METRIC_PINNED_BUTTON_EVENT_PREFIX).increment();
+    }
+
+    public static void incrementConcurrentButtonMetricCounter() {
+        globalRegistry.counter(METRIC_PREFIX + METRIC_CONCURRENT_BUTTON_EVENT_PREFIX).increment();
     }
 
     public static void copyChannelConfigs(long count) {

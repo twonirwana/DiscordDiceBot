@@ -84,7 +84,6 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
         }
     }
 
-
     private MessageCreateData convertToMessageCreateData(@NonNull EmbedOrMessageDefinition messageDefinition,
                                                          String rollRequesterMention) {
         Preconditions.checkArgument(messageDefinition.getType() == EmbedOrMessageDefinition.Type.MESSAGE);
@@ -128,9 +127,37 @@ public abstract class DiscordAdapterImpl implements DiscordAdapter {
             log.error("Number of dice results was {} and was reduced", messageDefinition.getFields().size());
         }
         List<EmbedOrMessageDefinition.Field> limitedList = messageDefinition.getFields().stream().limit(25).collect(ImmutableList.toImmutableList()); //https://discord.com/developers/docs/resources/channel#embed-limits
+
+        //there is a limit of 6000 for all fields together
+        final int sumOfFieldLengthLimit = 6000
+                - Optional.ofNullable(messageDefinition.getDescriptionOrContent()).map(String::length).orElse(0)
+                - Optional.ofNullable(messageDefinition.getTitle()).map(String::length).orElse(0);
+        final int sumOfAllFieldsNameLength = limitedList.stream()
+                .map(EmbedOrMessageDefinition.Field::getName)
+                .mapToInt(String::length)
+                .sum();
+        final int sumOfAllFieldsValueLength = limitedList.stream()
+                .map(EmbedOrMessageDefinition.Field::getValue)
+                .mapToInt(String::length)
+                .sum();
+        final int fieldValueLimit;
+        final int fieldNameLimit;
+        if (sumOfAllFieldsNameLength > 6000) {
+            int equalParts = 6000 / limitedList.size() / 2;
+            fieldNameLimit = equalParts;
+            fieldValueLimit = equalParts;
+        } else if (sumOfAllFieldsValueLength + sumOfAllFieldsNameLength > 6000) {
+            int limitWithoutNames = sumOfFieldLengthLimit - sumOfAllFieldsNameLength; //the whole name should be shown
+            fieldNameLimit = Integer.MAX_VALUE;
+            fieldValueLimit = limitWithoutNames / limitedList.size();
+        } else {
+            fieldNameLimit = Integer.MAX_VALUE;
+            fieldValueLimit = Integer.MAX_VALUE;
+        }
+
         for (EmbedOrMessageDefinition.Field field : limitedList) {
-            builder.addField(StringUtils.abbreviate(encodeUTF8(field.getName()), 256), //https://discord.com/developers/docs/resources/channel#embed-limits
-                    StringUtils.abbreviate(encodeUTF8(field.getValue()), 1024), //https://discord.com/developers/docs/resources/channel#embed-limits
+            builder.addField(StringUtils.abbreviate(encodeUTF8(field.getName()), Math.min(256, fieldNameLimit)), //https://discord.com/developers/docs/resources/channel#embed-limits
+                    StringUtils.abbreviate(encodeUTF8(field.getValue()), Math.min(1024, fieldValueLimit)), //https://discord.com/developers/docs/resources/channel#embed-limits
                     field.isInline());
         }
 
