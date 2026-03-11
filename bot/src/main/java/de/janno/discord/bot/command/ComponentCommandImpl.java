@@ -1,6 +1,8 @@
 package de.janno.discord.bot.command;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import de.janno.discord.bot.AnswerInteractionType;
 import de.janno.discord.bot.BaseCommandUtils;
 import de.janno.discord.bot.BotMetrics;
@@ -15,10 +17,12 @@ import de.janno.discord.connector.api.ButtonEventAdaptor;
 import de.janno.discord.connector.api.ComponentCommand;
 import de.janno.discord.connector.api.message.ComponentRowDefinition;
 import de.janno.discord.connector.api.message.EmbedOrMessageDefinition;
+import io.avaje.config.Config;
+import io.micrometer.core.instrument.Gauge;
+import io.micrometer.core.instrument.Tags;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
-
 
 import java.time.Duration;
 import java.time.OffsetDateTime;
@@ -27,17 +31,46 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+
+import static io.micrometer.core.instrument.Metrics.globalRegistry;
 
 @Slf4j
 public abstract class ComponentCommandImpl<C extends RollConfig, S extends StateData> implements ComponentCommand {
 
     protected final PersistenceManager persistenceManager;
     protected final Supplier<UUID> uuidSupplier;
+    private Cache<String, Boolean> concurrentRequestCache;
 
     protected ComponentCommandImpl(PersistenceManager persistenceManager, Supplier<UUID> uuidSupplier) {
         this.persistenceManager = persistenceManager;
         this.uuidSupplier = uuidSupplier;
+        recreateConcurrentRequestCache();
+        io.avaje.config.Config.onChange(_ -> {
+            recreateConcurrentRequestCache();
+            log.info("recreate {} concurrent request cache", getCommandId());
+        }, "concurrentRequestMaxLockTimeSec");
+        Gauge.builder("concurrentRequestCache." + getCommandId(), concurrentRequestCache::size).tags(Tags.of("stats", "size")).register(globalRegistry);
+        Gauge.builder("concurrentRequestCache." + getCommandId(), () -> concurrentRequestCache.stats().requestCount()).tags(Tags.of("stats", "requests")).register(globalRegistry);
+        Gauge.builder("concurrentRequestCache." + getCommandId(), () -> concurrentRequestCache.stats().hitCount()).tags(Tags.of("stats", "hit")).register(globalRegistry);
+        Gauge.builder("concurrentRequestCache." + getCommandId(), () -> concurrentRequestCache.stats().missCount()).tags(Tags.of("stats", "miss")).register(globalRegistry);
+    }
+
+    private void recreateConcurrentRequestCache() {
+        concurrentRequestCache = CacheBuilder.newBuilder()
+                .expireAfterAccess(Config.getInt("concurrentRequestMaxLockTimeSec", 600), TimeUnit.SECONDS)
+                .recordStats()
+                .build();
+    }
+
+    private synchronized boolean isLocked(String concurrentRequestId) {
+        if (Boolean.TRUE.equals(concurrentRequestCache.getIfPresent(concurrentRequestId))) {
+            BotMetrics.incrementConcurrentButtonMetricCounter();
+            return true;
+        }
+        concurrentRequestCache.put(concurrentRequestId, Boolean.TRUE);
+        return false;
     }
 
     @Override
@@ -59,6 +92,11 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
         if (configUUIDFromCustomID.isEmpty()) {
             log.info("{}: Legacy id {}", event.getRequester().toLogString(), event.getCustomId());
             return event.reply(I18n.getMessage("base.reply.legacyButtonId", event.getRequester().getUserLocal()), false);
+        }
+        String concurrentRequestId = configUUIDFromCustomID.get() + "_" + event.getMessageId();
+        boolean isLocked = isLocked(concurrentRequestId);
+        if (isLocked) {
+            return event.acknowledge();
         }
         BotMetrics.incrementButtonMetricCounter(getCommandId());
         if (guildId == null) {
@@ -115,6 +153,8 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
 
                         )))
                 .doAfterTerminate(() -> {
+                    concurrentRequestCache.invalidate(concurrentRequestId);
+                    System.out.println("release concurrent request: " + Thread.currentThread().getName());
                     //only logging if there is an answer or new button message, and not if the event message was only edited
                     if (componentInteractionContext.getAnswerFinished() != null || componentInteractionContext.getNewButtonFinished() != null) {
                         log.info("{}: {}-{} = {}",
@@ -148,12 +188,12 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
         componentInteractionContext.stopStartAcknowledge();
         if (editMessage.isPresent() || editMessageComponents.isPresent()) {
             return event.editMessage(editMessage.orElse(null), editMessageComponents.orElse(null))
-                    .doOnSuccess(v -> componentInteractionContext.stopReplyFinished());
+                    .doOnSuccess(_ -> componentInteractionContext.stopReplyFinished());
         } else if (ephemeralMessage.isPresent()) {
             return event.reply(ephemeralMessage.get(), true);
         } else {
             return event.acknowledge()
-                    .doOnSuccess(v -> componentInteractionContext.stopAcknowledgeFinished());
+                    .doOnSuccess(_ -> componentInteractionContext.stopAcknowledgeFinished());
         }
     }
 
@@ -185,7 +225,7 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
                 answerMessage = baseAnswer;
             }
             return event.sendMessage(answerMessage.toBuilder().sendToOtherChannelId(answerTargetChannelId).build()).then()
-                    .doOnSuccess(v -> componentInteractionContext.stopAnswer());
+                    .doOnSuccess(_ -> componentInteractionContext.stopAnswer());
 
         }
         return Mono.empty();
@@ -206,7 +246,7 @@ public abstract class ComponentCommandImpl<C extends RollConfig, S extends State
         if (answerTargetChannelId == null) {
             return Mono.defer(() -> event.sendMessage(newButtonMessage)
                     .doOnNext(newMessageId -> createEmptyMessageData(configUUID, guildId, channelId, newMessageId))
-                    .doOnNext(newMessageId -> componentInteractionContext.stopNewButton())
+                    .doOnNext(_ -> componentInteractionContext.stopNewButton())
                     .delaySubscription(calculateDelay(event)));
         }
         return Mono.empty();
