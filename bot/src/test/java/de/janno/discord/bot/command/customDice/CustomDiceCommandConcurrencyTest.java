@@ -78,6 +78,9 @@ public class CustomDiceCommandConcurrencyTest {
         t1.start();
         t2.start();
 
+        // Give threads a moment to reach the latch.await() line
+        Thread.sleep(20);
+
         latch.countDown();
         finishLine.await();
         underTest.handleComponentInteractEvent(buttonEvent)
