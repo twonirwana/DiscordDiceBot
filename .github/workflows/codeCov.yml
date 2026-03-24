@@ -27,7 +27,7 @@ jobs:
         java-version: '25'
         distribution: 'temurin'
     - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v5
+      uses: gradle/actions/setup-gradle@v6
     - name: Run the tests
       run: ./gradlew test
     - name: Publish Test Report
