@@ -37,11 +37,11 @@ class RerollAnswerHandlerTest {
         long messageId = System.currentTimeMillis();
         DieId dieId1 = DieId.of(1, "d", 0, 0, 0);
         DieId dieId2 = DieId.of(1, "d", 0, 1, 0);
-        RerollAnswerConfig config = new RerollAnswerConfig(123L, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, AnswerInteractionType.reroll,
+        RerollAnswerConfig config = new RerollAnswerConfig(123L, AnswerFormatType.full, null, Locale.ENGLISH, AnswerInteractionType.reroll,
                 "2d6", List.of(
                 new DieIdTypeAndValue(DieIdDb.fromDieId(dieId1), "2", 2, 6, null),
                 new DieIdTypeAndValue(DieIdDb.fromDieId(dieId2), "5", 5, 6, null)
-        ), 0, "userName", true, "roll");
+        ), 0, "userName", true, "roll", new DiceStyleAndColor(DiceImageStyle.none, "none"));
         Optional<MessageConfigDTO> toSave = RerollAnswerHandler.createMessageConfig(configUUID, 1L, channelId, 0L, config);
         assertThat(toSave).isPresent();
 
@@ -112,11 +112,11 @@ class RerollAnswerHandlerTest {
                 """);
 
         ConfigAndState<RerollAnswerConfig, RerollAnswerStateData> configAndState = underTest.getMessageDataAndUpdateWithButtonValue(messageConfigDTO, messageDataDTO, "dadf", "userName");
-        RerollAnswerConfig config = new RerollAnswerConfig(123L, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, AnswerInteractionType.reroll,
+        RerollAnswerConfig config = new RerollAnswerConfig(123L, AnswerFormatType.full, null, Locale.ENGLISH, AnswerInteractionType.reroll,
                 "2d6", List.of(
                 new DieIdTypeAndValue(DieIdDb.fromDieId(DieId.of(1, "d", 0, 0, 0)), "2", 2, 6, null),
                 new DieIdTypeAndValue(DieIdDb.fromDieId(DieId.of(1, "d", 0, 1, 0)), "5", 5, 6, null)
-        ), 0, "owner", true, "roll");
+        ), 0, "owner", true, "roll", new DiceStyleAndColor(DiceImageStyle.none, "none"));
         assertThat(configAndState.getConfig()).isEqualTo(config);
         assertThat(configAndState.getConfigUUID()).isEqualTo(configUUID);
         assertThat(configAndState.getState().getData()).isEqualTo(new RerollAnswerStateData(List.of(DieIdDb.fromDieId(DieId.of(1, "d", 0, 0, 0)))));
@@ -125,11 +125,11 @@ class RerollAnswerHandlerTest {
     @Test
     void configSerialization() {
         UUID configUUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
-        RerollAnswerConfig config = new RerollAnswerConfig(123L, AnswerFormatType.full, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, AnswerInteractionType.reroll,
+        RerollAnswerConfig config = new RerollAnswerConfig(123L, AnswerFormatType.full, null, Locale.ENGLISH, AnswerInteractionType.reroll,
                 "2d6", List.of(
                 new DieIdTypeAndValue(DieIdDb.fromDieId(DieId.of(1, "d", 0, 0, 0)), "2", 2, 6, null),
                 new DieIdTypeAndValue(DieIdDb.fromDieId(DieId.of(1, "d", 0, 1, 0)), "5", 5, 6, null)
-        ), 0, "owner", true, "roll");
+        ), 0, "owner", true, "roll", new DiceStyleAndColor(DiceImageStyle.none, "none"));
         Optional<MessageConfigDTO> toSave = RerollAnswerHandler.createMessageConfig(configUUID, 1L, 2L, 0L, config);
         assertThat(toSave).isPresent();
 

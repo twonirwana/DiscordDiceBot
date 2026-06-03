@@ -37,11 +37,11 @@ public class CustomParameterConfig extends RollConfig {
             @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
             @JsonProperty("answerInteractionType") AnswerInteractionType answerInteractionType,
             @JsonProperty("resultImage") ResultImage resultImage,
-            @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor,
             @JsonProperty("configLocale") Locale configLocale,
             @JsonProperty("callStarterConfigAfterFinish") UUID callStarterConfigAfterFinish,
             @JsonProperty("name") String name,
-            @JsonProperty("inputType") InputType inputType) {
+            @JsonProperty("inputType") InputType inputType,
+            @JsonProperty("diceStyleAndColor") DiceStyleAndColor diceStyleAndColor) {
         super(answerTargetChannelId, answerFormatType, answerInteractionType, resultImage, diceStyleAndColor, configLocale, callStarterConfigAfterFinish, name);
         this.baseExpression = baseExpression;
         this.inputType = Optional.ofNullable(inputType).orElse(InputType.button_legacy);

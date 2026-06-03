@@ -144,10 +144,10 @@ public class CustomDiceCommand extends AbstractCommand<CustomDiceConfig, StateDa
                 answerFormatType,
                 answerInteractionType,
                 null,
-                new DiceStyleAndColor(diceImageStyle, defaultDiceColor),
                 userLocale,
                 null,
-                name
+                name,
+                new DiceStyleAndColor(diceImageStyle, defaultDiceColor)
         );
     }
 

@@ -432,19 +432,9 @@ public class CustomParameterCommand extends AbstractCommand<CustomParameterConfi
         final CustomParameterConfig.InputType inputType = options.getStringSubOptionWithName(INPUT_TYPE_NAME)
                 .map(CustomParameterConfig.InputType::fromString)
                 .orElse(CustomParameterConfig.InputType.button);
-        return new CustomParameterConfig(answerTargetChannelId,
-                baseExpression,
-                answerType,
-                BaseCommandOptions.getAnswerInteractionFromStartCommandOption(options),
-                null,
-                new DiceStyleAndColor(
-                        BaseCommandOptions.getDiceStyleOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d),
-                        BaseCommandOptions.getDiceColorOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d.getDefaultColor())),
-                userLocale,
-                null,
-                name,
-                inputType
-        );
+        return new CustomParameterConfig(answerTargetChannelId, baseExpression, answerType, BaseCommandOptions.getAnswerInteractionFromStartCommandOption(options), null, userLocale, null, name, inputType, new DiceStyleAndColor(
+                BaseCommandOptions.getDiceStyleOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d),
+                BaseCommandOptions.getDiceColorOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d.getDefaultColor())));
     }
 
     @Override

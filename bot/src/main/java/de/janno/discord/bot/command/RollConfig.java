@@ -49,7 +49,7 @@ public class RollConfig implements Config {
                       @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
                       @JsonProperty("answerInteractionType") AnswerInteractionType answerInteractionType,
                       @JsonProperty("resultImage") ResultImage resultImage,
-                      @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor,
+                      @JsonProperty("diceStyleAndColor") DiceStyleAndColor diceStyleAndColor,
                       @JsonProperty("configLocale") Locale configLocale,
                       @JsonProperty("callStarterConfigAfterFinish") UUID callStarterConfigAfterFinish,
                       @JsonProperty("name") String name

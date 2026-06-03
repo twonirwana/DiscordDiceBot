@@ -42,7 +42,7 @@ public class CustomParameterCommandMockTest {
         CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
-        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button);
+        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", AnswerFormatType.full, AnswerInteractionType.none, null, Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("id4");
@@ -59,7 +59,7 @@ public class CustomParameterCommandMockTest {
         CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
-        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.dropdown);
+        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", AnswerFormatType.without_expression, AnswerInteractionType.none, null, Locale.ENGLISH, null, null, CustomParameterConfig.InputType.dropdown, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("numberOfDice-id4");
@@ -76,7 +76,7 @@ public class CustomParameterCommandMockTest {
         CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
-        CustomParameterConfig config = new CustomParameterConfig(null, "d{sides:1/4/6/8/10/12/20/100}", AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.dropdown);
+        CustomParameterConfig config = new CustomParameterConfig(null, "d{sides:1/4/6/8/10/12/20/100}", AnswerFormatType.without_expression, AnswerInteractionType.none, null, Locale.ENGLISH, null, null, CustomParameterConfig.InputType.dropdown, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("sides-id4");
@@ -90,8 +90,7 @@ public class CustomParameterCommandMockTest {
         CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
-        CustomParameterConfig config = new CustomParameterConfig(null, "/custom_parameter start expression: val('$n',{numberOfDice:1<=>10}),{type:''!1!@pool/''!2!@sum} + '$n'd10{target!1!:>=4c@4/>=6c@6/>=8c@8}{modifier!2!:+1=@+1/+2=@+2/+3=@+3}",
-                AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button);
+        CustomParameterConfig config = new CustomParameterConfig(null, "/custom_parameter start expression: val('$n',{numberOfDice:1<=>10}),{type:''!1!@pool/''!2!@sum} + '$n'd10{target!1!:>=4c@4/>=6c@6/>=8c@8}{modifier!2!:+1=@+1/+2=@+2/+3=@+3}", AnswerFormatType.full, AnswerInteractionType.none, null, Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("id5");
@@ -111,8 +110,7 @@ public class CustomParameterCommandMockTest {
         CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
-        CustomParameterConfig config = new CustomParameterConfig(null, "/custom_parameter start expression: val('$n',{numberOfDice:1<=>10}),{type:''!1!@pool/''!2!@sum} + '$n'd10{target!1!:>=4c@4/>=6c@6/>=8c@8}{modifier!2!:+1=@+1/+2=@+2/+3=@+3}",
-                AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button);
+        CustomParameterConfig config = new CustomParameterConfig(null, "/custom_parameter start expression: val('$n',{numberOfDice:1<=>10}),{type:''!1!@pool/''!2!@sum} + '$n'd10{target!1!:>=4c@4/>=6c@6/>=8c@8}{modifier!2!:+1=@+1/+2=@+2/+3=@+3}", AnswerFormatType.full, AnswerInteractionType.none, null, Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("id5");
@@ -132,7 +130,7 @@ public class CustomParameterCommandMockTest {
         CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
-        CustomParameterConfig config = new CustomParameterConfig(null, "{n}d{s:4/6/10/20@!20}+{modi:1/2/3}=", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button);
+        CustomParameterConfig config = new CustomParameterConfig(null, "{n}d{s:4/6/10/20@!20}+{modi:1/2/3}=", AnswerFormatType.full, AnswerInteractionType.none, null, Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("id1");
@@ -149,7 +147,7 @@ public class CustomParameterCommandMockTest {
         CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
-        CustomParameterConfig config = new CustomParameterConfig(null, "{n}d{s:4/6/10/20@!20}+{modi:1/2/3}=", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button);
+        CustomParameterConfig config = new CustomParameterConfig(null, "{n}d{s:4/6/10/20@!20}+{modi:1/2/3}=", AnswerFormatType.full, AnswerInteractionType.none, null, Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("id1");
@@ -238,7 +236,7 @@ public class CustomParameterCommandMockTest {
         CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
-        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.GERMAN, null, null, CustomParameterConfig.InputType.button);
+        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", AnswerFormatType.full, AnswerInteractionType.none, null, Locale.GERMAN, null, null, CustomParameterConfig.InputType.button, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("id4");
@@ -255,7 +253,7 @@ public class CustomParameterCommandMockTest {
         CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
-        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.of("pt", "BR"), null, null, CustomParameterConfig.InputType.button);
+        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", AnswerFormatType.full, AnswerInteractionType.none, null, Locale.of("pt", "BR"), null, null, CustomParameterConfig.InputType.button, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("id4");
@@ -272,7 +270,7 @@ public class CustomParameterCommandMockTest {
         CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
-        CustomParameterConfig config = new CustomParameterConfig(null, "{dice:d4/d['-','0','1']@Fate}+{bonus:1<=>10}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button);
+        CustomParameterConfig config = new CustomParameterConfig(null, "{dice:d4/d['-','0','1']@Fate}+{bonus:1<=>10}", AnswerFormatType.full, AnswerInteractionType.none, null, Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("d['-','0','1']");
@@ -289,7 +287,7 @@ public class CustomParameterCommandMockTest {
         CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
-        CustomParameterConfig config = new CustomParameterConfig(null, "{bonus:-5<=>5}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button);
+        CustomParameterConfig config = new CustomParameterConfig(null, "{bonus:-5<=>5}", AnswerFormatType.full, AnswerInteractionType.none, null, Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("2");
@@ -303,7 +301,7 @@ public class CustomParameterCommandMockTest {
         CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
-        CustomParameterConfig config = new CustomParameterConfig(null, "{dice:d4/d['-','0','1']@Fate}+{bonus:1<=>10}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button);
+        CustomParameterConfig config = new CustomParameterConfig(null, "{dice:d4/d['-','0','1']@Fate}+{bonus:1<=>10}", AnswerFormatType.full, AnswerInteractionType.none, null, Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("id2");
@@ -320,7 +318,7 @@ public class CustomParameterCommandMockTest {
         CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
-        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}@Roll", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button);
+        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}@Roll", AnswerFormatType.full, AnswerInteractionType.none, null, Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("id4");
@@ -337,7 +335,7 @@ public class CustomParameterCommandMockTest {
         CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
-        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button);
+        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", AnswerFormatType.without_expression, AnswerInteractionType.none, null, Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("id4");
@@ -354,7 +352,7 @@ public class CustomParameterCommandMockTest {
         CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
-        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}@Roll", AnswerFormatType.without_expression, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button);
+        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}@Roll", AnswerFormatType.without_expression, AnswerInteractionType.none, null, Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("id4");
@@ -371,7 +369,7 @@ public class CustomParameterCommandMockTest {
         CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
-        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", AnswerFormatType.compact, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button);
+        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", AnswerFormatType.compact, AnswerInteractionType.none, null, Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("id4");
@@ -388,7 +386,7 @@ public class CustomParameterCommandMockTest {
         CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
-        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", AnswerFormatType.minimal, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button);
+        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", AnswerFormatType.minimal, AnswerInteractionType.none, null, Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("id4");
@@ -405,7 +403,7 @@ public class CustomParameterCommandMockTest {
         CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
-        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", AnswerFormatType.minimal, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button);
+        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", AnswerFormatType.minimal, AnswerInteractionType.none, null, Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("id4", "user1");
@@ -425,7 +423,7 @@ public class CustomParameterCommandMockTest {
         CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
-        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button);
+        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", AnswerFormatType.full, AnswerInteractionType.none, null, Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("id4");
@@ -442,7 +440,7 @@ public class CustomParameterCommandMockTest {
         CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
-        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button);
+        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", AnswerFormatType.full, AnswerInteractionType.none, null, Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, true);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("id4");
@@ -459,7 +457,7 @@ public class CustomParameterCommandMockTest {
         CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
-        CustomParameterConfig config = new CustomParameterConfig(2L, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button);
+        CustomParameterConfig config = new CustomParameterConfig(2L, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", AnswerFormatType.full, AnswerInteractionType.none, null, Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("id4");
@@ -476,7 +474,7 @@ public class CustomParameterCommandMockTest {
         CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
-        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button);
+        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", AnswerFormatType.full, AnswerInteractionType.none, null, Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, true);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("id4");
@@ -499,7 +497,7 @@ public class CustomParameterCommandMockTest {
         CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
 
 
-        CustomParameterConfig config = new CustomParameterConfig(2L, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button);
+        CustomParameterConfig config = new CustomParameterConfig(2L, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}", AnswerFormatType.full, AnswerInteractionType.none, null, Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button, new DiceStyleAndColor(DiceImageStyle.none, "none"));
         ButtonEventAdaptorMockFactory<CustomParameterConfig, CustomParameterStateData> factory = new ButtonEventAdaptorMockFactory<>("custom_parameter", underTest, config, persistenceManager, false);
 
         ButtonEventAdaptorMock click1 = factory.getButtonClickOnLastButtonMessage("id4");
@@ -520,7 +518,7 @@ public class CustomParameterCommandMockTest {
     @Test
     void channelAlias() {
         CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
-        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}+att", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button);
+        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}+att", AnswerFormatType.full, AnswerInteractionType.none, null, Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button, new DiceStyleAndColor(DiceImageStyle.none, "none"));
 
         ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
 
@@ -550,7 +548,7 @@ public class CustomParameterCommandMockTest {
     @Test
     void userChannelAlias() {
         CustomParameterCommand underTest = new CustomParameterCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
-        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}+att", AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button);
+        CustomParameterConfig config = new CustomParameterConfig(null, "{numberOfDice:1<=>10}d{sides:1/4/6/8/10/12/20/100}+att", AnswerFormatType.full, AnswerInteractionType.none, null, Locale.ENGLISH, null, null, CustomParameterConfig.InputType.button, new DiceStyleAndColor(DiceImageStyle.none, "none"));
 
         ChannelConfigCommand channelConfig = new ChannelConfigCommand(persistenceManager);
 

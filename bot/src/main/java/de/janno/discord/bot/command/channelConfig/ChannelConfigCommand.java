@@ -299,7 +299,7 @@ public class ChannelConfigCommand implements SlashCommand {
             final Locale userOrConfigLocale = BaseCommandOptions.getLocaleOptionFromStartCommandOption(saveAction)
                     .orElse(event.getRequester().getUserLocal());
             final String name = BaseCommandOptions.getNameFromStartCommandOption(saveAction).orElse(null);
-            DirectRollConfig config = new DirectRollConfig(null, alwaysSumResults, answerFormatType, answerInteractionType, null, new DiceStyleAndColor(diceImageStyle, defaultDiceColor), userOrConfigLocale, name);
+            DirectRollConfig config = new DirectRollConfig(null, alwaysSumResults, answerFormatType, answerInteractionType, null, userOrConfigLocale, name, new DiceStyleAndColor(diceImageStyle, defaultDiceColor));
             BotMetrics.incrementSlashStartMetricCounter(getCommandId() + "_rollConfigSave");
 
             return Mono.defer(() -> {

@@ -47,10 +47,10 @@ public class SumCustomSetConfig extends RollConfig {
                               @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
                               @JsonProperty("answerInteractionType") AnswerInteractionType answerInteractionType,
                               @JsonProperty("resultImage") ResultImage resultImage,
-                              @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor,
                               @JsonProperty("configLocale") Locale configLocale,
                               @JsonProperty("callStarterConfigAfterFinish") UUID callStarterConfigAfterFinish,
-                              @JsonProperty("name") String name
+                              @JsonProperty("name") String name,
+                              @JsonProperty("diceStyleAndColor") DiceStyleAndColor diceStyleAndColor
     ) {
         super(answerTargetChannelId, answerFormatType, answerInteractionType, resultImage, diceStyleAndColor, configLocale, callStarterConfigAfterFinish, name);
         this.labelAndExpression = labelAndExpression;
