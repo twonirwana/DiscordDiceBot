@@ -120,9 +120,15 @@ class StarterCommandMockTest {
     @Test
     void createWithUserNamed_sameMassage() {
         persistenceManager.saveMessageConfig(customDiceCommand.createMessageConfig(uuidSupplier.get(), 1L, 1L, 1L, new CustomDiceConfig(null,
-                List.of(new ButtonIdLabelAndDiceExpression("1", "Roll", "2d6", false, false, null)),
-                AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.d6_dots, DiceImageStyle.d6_dots.getDefaultColor()),
-                Locale.ENGLISH, null, "named_!uniqueKey1!")
+                        List.of(new ButtonIdLabelAndDiceExpression("1", "Roll", "2d6", false, false, null)),
+                        AnswerFormatType.full,
+                        AnswerInteractionType.none,
+                        null,
+                        Locale.ENGLISH,
+                        null,
+                        "named_!uniqueKey1!",
+                        new DiceStyleAndColor(DiceImageStyle.d6_dots, DiceImageStyle.d6_dots.getDefaultColor())
+                )
         ).orElseThrow());
 
         SlashEventAdaptorMock slashEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
@@ -156,9 +162,15 @@ class StarterCommandMockTest {
     @Test
     void createWithUserNamed_newMassage() {
         persistenceManager.saveMessageConfig(customDiceCommand.createMessageConfig(uuidSupplier.get(), 1L, 1L, 1L, new CustomDiceConfig(null,
-                List.of(new ButtonIdLabelAndDiceExpression("1", "Roll", "2d6", false, false, null)),
-                AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.d6_dots, DiceImageStyle.d6_dots.getDefaultColor()),
-                Locale.ENGLISH, null, "named_!uniqueKey1!")
+                        List.of(new ButtonIdLabelAndDiceExpression("1", "Roll", "2d6", false, false, null)),
+                        AnswerFormatType.full,
+                        AnswerInteractionType.none,
+                        null,
+                        Locale.ENGLISH,
+                        null,
+                        "named_!uniqueKey1!",
+                        new DiceStyleAndColor(DiceImageStyle.d6_dots, DiceImageStyle.d6_dots.getDefaultColor())
+                )
         ).orElseThrow());
 
         SlashEventAdaptorMock slashEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
@@ -196,9 +208,15 @@ class StarterCommandMockTest {
     @Test
     void help() {
         persistenceManager.saveMessageConfig(customDiceCommand.createMessageConfig(uuidSupplier.get(), 1L, 1L, 1L, new CustomDiceConfig(null,
-                List.of(new ButtonIdLabelAndDiceExpression("1", "Roll", "2d6", false, false, null)),
-                AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.d6_dots, DiceImageStyle.d6_dots.getDefaultColor()),
-                Locale.ENGLISH, null, "named_!uniqueKey1!")
+                        List.of(new ButtonIdLabelAndDiceExpression("1", "Roll", "2d6", false, false, null)),
+                        AnswerFormatType.full,
+                        AnswerInteractionType.none,
+                        null,
+                        Locale.ENGLISH,
+                        null,
+                        "named_!uniqueKey1!",
+                        new DiceStyleAndColor(DiceImageStyle.d6_dots, DiceImageStyle.d6_dots.getDefaultColor())
+                )
         ).orElseThrow());
 
         SlashEventAdaptorMock slashEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()
@@ -212,9 +230,15 @@ class StarterCommandMockTest {
     @Test
     void welcome() {
         persistenceManager.saveMessageConfig(customDiceCommand.createMessageConfig(uuidSupplier.get(), 1L, 1L, 1L, new CustomDiceConfig(null,
-                List.of(new ButtonIdLabelAndDiceExpression("1", "Roll", "2d6", false, false, null)),
-                AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.d6_dots, DiceImageStyle.d6_dots.getDefaultColor()),
-                Locale.ENGLISH, null, "named_!uniqueKey1!")
+                        List.of(new ButtonIdLabelAndDiceExpression("1", "Roll", "2d6", false, false, null)),
+                        AnswerFormatType.full,
+                        AnswerInteractionType.none,
+                        null,
+                        Locale.ENGLISH,
+                        null,
+                        "named_!uniqueKey1!",
+                        new DiceStyleAndColor(DiceImageStyle.d6_dots, DiceImageStyle.d6_dots.getDefaultColor())
+                )
         ).orElseThrow());
 
         SlashEventAdaptorMock slashEvent = new SlashEventAdaptorMock(List.of(CommandInteractionOption.builder()

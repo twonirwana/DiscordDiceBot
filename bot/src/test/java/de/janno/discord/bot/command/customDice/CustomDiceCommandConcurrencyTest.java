@@ -53,7 +53,16 @@ public class CustomDiceCommandConcurrencyTest {
     @Test
     void roll_diceEvaluator_full() throws InterruptedException {
         CustomDiceCommand underTest = new CustomDiceCommand(persistenceManager, new CachingDiceEvaluator(new RandomNumberSupplier(0)));
-        CustomDiceConfig config = new CustomDiceConfig(null, ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false, null)), AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.none, "none"), Locale.ENGLISH, null, null);
+        CustomDiceConfig config = new CustomDiceConfig(null,
+                ImmutableList.of(new ButtonIdLabelAndDiceExpression("1_button", "Dmg", "1d6", false, false, null)),
+                AnswerFormatType.full,
+                AnswerInteractionType.none,
+                null,
+                Locale.ENGLISH,
+                null,
+                null,
+                new DiceStyleAndColor(DiceImageStyle.none, "none")
+        );
         ButtonEventAdaptorMockFactory<CustomDiceConfig, StateData> factory = new ButtonEventAdaptorMockFactory<>("custom_dice", underTest, config, persistenceManager, false);
         ButtonEventAdaptorMock buttonEvent = factory.getButtonClickOnLastButtonMessage("1_button");
         CountDownLatch finishLine = new CountDownLatch(2);

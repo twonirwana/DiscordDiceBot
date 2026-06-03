@@ -112,7 +112,6 @@ public class RerollAnswerHandler extends ComponentCommandImpl<RerollAnswerConfig
         return new RerollAnswerConfig(null,
                 parentConfig.getAnswerFormatType(),
                 null, //legacy
-                parentConfig.getDiceStyleAndColor(),
                 parentConfig.getConfigLocale(),
                 AnswerInteractionType.reroll,
                 expression,
@@ -120,7 +119,9 @@ public class RerollAnswerHandler extends ComponentCommandImpl<RerollAnswerConfig
                 rerollCount,
                 owner,
                 parentConfig.alwaysSumResultUp(),
-                label);
+                label,
+                parentConfig.getDiceStyleAndColor()
+        );
     }
 
     public static Optional<MessageConfigDTO> createMessageConfig(@NonNull UUID configUUID, Long guildId, long channelId, long userId, @NonNull RerollAnswerConfig config) {

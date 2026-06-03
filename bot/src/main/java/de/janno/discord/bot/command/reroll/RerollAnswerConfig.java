@@ -29,14 +29,13 @@ public class RerollAnswerConfig extends RollConfig {
     @NonNull
     private final String owner;
     private final boolean alwaysSumUp;
-    
+
     private final String label;
 
     @JsonCreator
     public RerollAnswerConfig(@JsonProperty("answerTargetChannelId") Long answerTargetChannelId,
                               @JsonProperty("answerFormatType") AnswerFormatType answerFormatType,
                               @JsonProperty("resultImage") ResultImage resultImage,
-                              @JsonProperty("diceImageStyle") DiceStyleAndColor diceStyleAndColor,
                               @JsonProperty("configLocale") Locale configLocale,
                               @JsonProperty("answerInteractionType") AnswerInteractionType answerInteractionType,
                               @JsonProperty("expression") @NonNull String expression,
@@ -44,7 +43,8 @@ public class RerollAnswerConfig extends RollConfig {
                               @JsonProperty("rerollCount") int rerollCount,
                               @JsonProperty("owner") @NonNull String owner,
                               @JsonProperty("alwaysSumUp") boolean alwaysSumUp,
-                              @JsonProperty("label") String label
+                              @JsonProperty("label") String label,
+                              @JsonProperty("diceStyleAndColor") DiceStyleAndColor diceStyleAndColor
     ) {
         super(answerTargetChannelId, answerFormatType, answerInteractionType, resultImage, diceStyleAndColor, configLocale, null, null);
         this.expression = expression;

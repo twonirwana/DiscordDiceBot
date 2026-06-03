@@ -385,21 +385,9 @@ public class SumCustomSetCommand extends AbstractCommand<SumCustomSetConfig, Sum
         final String prefix = options.getStringSubOptionWithName(PREFIX_OPTIONS_NAME).orElse(null);
         final String postfix = options.getStringSubOptionWithName(POSTFIX_OPTIONS_NAME).orElse(null);
         final String name = BaseCommandOptions.getNameFromStartCommandOption(options).orElse(null);
-        return new SumCustomSetConfig(answerTargetChannelId,
-                buttons,
-                alwaysSumResults,
-                hideExpressionInAnswer,
-                systemButtonNewLine,
-                prefix,
-                postfix,
-                answerType,
-                BaseCommandOptions.getAnswerInteractionFromStartCommandOption(options),
-                null, new DiceStyleAndColor(
+        return new SumCustomSetConfig(answerTargetChannelId, buttons, alwaysSumResults, hideExpressionInAnswer, systemButtonNewLine, prefix, postfix, answerType, BaseCommandOptions.getAnswerInteractionFromStartCommandOption(options), null, userLocale, null, name, new DiceStyleAndColor(
                 BaseCommandOptions.getDiceStyleOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d),
-                BaseCommandOptions.getDiceColorOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d.getDefaultColor())),
-                userLocale,
-                null,
-                name);
+                BaseCommandOptions.getDiceColorOptionFromStartCommandOption(options).orElse(DiceImageStyle.polyhedral_3d.getDefaultColor())));
     }
 
     private List<ComponentRowDefinition> createButtonLayout(UUID configUUID, SumCustomSetConfig config, boolean rollDisabled, boolean backDisabled, Set<String> disableButtonIds, Locale configLocale) {

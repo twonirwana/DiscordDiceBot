@@ -140,14 +140,26 @@ class StarterCommandTest {
     @Test
     void getAutoCompleteAnswer_NamedFromGuild() {
         persistenceManager.saveMessageConfig(customDiceCommand.createMessageConfig(UUID.fromString("00000000-0000-0000-0000-000000000001"), 1L, 1L, 1L, new CustomDiceConfig(null,
-                List.of(new ButtonIdLabelAndDiceExpression("1", "Roll", "2d6", false, false, null)),
-                AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.d6_dots, DiceImageStyle.d6_dots.getDefaultColor()),
-                Locale.ENGLISH, null, "named_!uniqueKey1!_config_guild")
+                        List.of(new ButtonIdLabelAndDiceExpression("1", "Roll", "2d6", false, false, null)),
+                        AnswerFormatType.full,
+                        AnswerInteractionType.none,
+                        null,
+                        Locale.ENGLISH,
+                        null,
+                        "named_!uniqueKey1!_config_guild",
+                        new DiceStyleAndColor(DiceImageStyle.d6_dots, DiceImageStyle.d6_dots.getDefaultColor())
+                )
         ).orElseThrow());
         persistenceManager.saveMessageConfig(customDiceCommand.createMessageConfig(UUID.fromString("00000000-0000-0000-0000-000000000002"), 2L, 2L, 2L, new CustomDiceConfig(null,
-                List.of(new ButtonIdLabelAndDiceExpression("1", "Roll", "2d6", false, false, null)),
-                AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.d6_dots, DiceImageStyle.d6_dots.getDefaultColor()),
-                Locale.ENGLISH, null, "named_!uniqueKey2!_config_user")
+                        List.of(new ButtonIdLabelAndDiceExpression("1", "Roll", "2d6", false, false, null)),
+                        AnswerFormatType.full,
+                        AnswerInteractionType.none,
+                        null,
+                        Locale.ENGLISH,
+                        null,
+                        "named_!uniqueKey2!_config_user",
+                        new DiceStyleAndColor(DiceImageStyle.d6_dots, DiceImageStyle.d6_dots.getDefaultColor())
+                )
         ).orElseThrow());
         List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("command_name_1", "", List.of()), Locale.ENGLISH, 3L, 1L, 3L);
 
@@ -157,14 +169,26 @@ class StarterCommandTest {
     @Test
     void getAutoCompleteAnswer_NamedFromUser() {
         persistenceManager.saveMessageConfig(customDiceCommand.createMessageConfig(UUID.fromString("00000000-0000-0000-0000-000000000001"), 1L, 1L, 1L, new CustomDiceConfig(null,
-                List.of(new ButtonIdLabelAndDiceExpression("1", "Roll", "2d6", false, false, null)),
-                AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.d6_dots, DiceImageStyle.d6_dots.getDefaultColor()),
-                Locale.ENGLISH, null, "named_!uniqueKey1!_config_guild")
+                        List.of(new ButtonIdLabelAndDiceExpression("1", "Roll", "2d6", false, false, null)),
+                        AnswerFormatType.full,
+                        AnswerInteractionType.none,
+                        null,
+                        Locale.ENGLISH,
+                        null,
+                        "named_!uniqueKey1!_config_guild",
+                        new DiceStyleAndColor(DiceImageStyle.d6_dots, DiceImageStyle.d6_dots.getDefaultColor())
+                )
         ).orElseThrow());
         persistenceManager.saveMessageConfig(customDiceCommand.createMessageConfig(UUID.fromString("00000000-0000-0000-0000-000000000002"), 2L, 2L, 2L, new CustomDiceConfig(null,
-                List.of(new ButtonIdLabelAndDiceExpression("1", "Roll", "2d6", false, false, null)),
-                AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.d6_dots, DiceImageStyle.d6_dots.getDefaultColor()),
-                Locale.ENGLISH, null, "named_!uniqueKey2!_config_user")
+                        List.of(new ButtonIdLabelAndDiceExpression("1", "Roll", "2d6", false, false, null)),
+                        AnswerFormatType.full,
+                        AnswerInteractionType.none,
+                        null,
+                        Locale.ENGLISH,
+                        null,
+                        "named_!uniqueKey2!_config_user",
+                        new DiceStyleAndColor(DiceImageStyle.d6_dots, DiceImageStyle.d6_dots.getDefaultColor())
+                )
         ).orElseThrow());
 
         List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("command_name_1", "", List.of()), Locale.ENGLISH, 3L, 3L, 2L);
@@ -175,14 +199,26 @@ class StarterCommandTest {
     @Test
     void getAutoCompleteAnswer_doubleName() {
         persistenceManager.saveMessageConfig(customDiceCommand.createMessageConfig(UUID.fromString("00000000-0000-0000-0000-000000000001"), 1L, 1L, 1L, new CustomDiceConfig(null,
-                List.of(new ButtonIdLabelAndDiceExpression("1", "Roll", "2d6", false, false, null)),
-                AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.d6_dots, DiceImageStyle.d6_dots.getDefaultColor()),
-                Locale.ENGLISH, null, "Dungeon & Dragons 5e")
+                        List.of(new ButtonIdLabelAndDiceExpression("1", "Roll", "2d6", false, false, null)),
+                        AnswerFormatType.full,
+                        AnswerInteractionType.none,
+                        null,
+                        Locale.ENGLISH,
+                        null,
+                        "Dungeon & Dragons 5e",
+                        new DiceStyleAndColor(DiceImageStyle.d6_dots, DiceImageStyle.d6_dots.getDefaultColor())
+                )
         ).orElseThrow());
         persistenceManager.saveMessageConfig(customDiceCommand.createMessageConfig(UUID.fromString("00000000-0000-0000-0000-000000000002"), 2L, 2L, 2L, new CustomDiceConfig(null,
-                List.of(new ButtonIdLabelAndDiceExpression("1", "Roll", "2d6", false, false, null)),
-                AnswerFormatType.full, AnswerInteractionType.none, null, new DiceStyleAndColor(DiceImageStyle.d6_dots, DiceImageStyle.d6_dots.getDefaultColor()),
-                Locale.ENGLISH, null, "Dungeon & Dragons 5e")
+                        List.of(new ButtonIdLabelAndDiceExpression("1", "Roll", "2d6", false, false, null)),
+                        AnswerFormatType.full,
+                        AnswerInteractionType.none,
+                        null,
+                        Locale.ENGLISH,
+                        null,
+                        "Dungeon & Dragons 5e",
+                        new DiceStyleAndColor(DiceImageStyle.d6_dots, DiceImageStyle.d6_dots.getDefaultColor())
+                )
         ).orElseThrow());
         List<AutoCompleteAnswer> res = underTest.getAutoCompleteAnswer(new AutoCompleteRequest("command_name_1", "Dungeon & Dragons 5e", List.of()), Locale.ENGLISH, 3L, 1L, 2L);
 
