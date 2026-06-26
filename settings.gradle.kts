@@ -15,7 +15,7 @@ dependencyResolutionManagement {
             library("reactor-core", "io.projectreactor:reactor-core:3.8.6")
             library("guava", "com.google.guava:guava:33.6.0-jre")
             library("assertj-core", "org.assertj:assertj-core:3.27.7")
-            library("logback-classic", "ch.qos.logback:logback-classic:1.5.35")
+            library("logback-classic", "ch.qos.logback:logback-classic:1.5.36")
             library("log4j-to-slf4j", "org.apache.logging.log4j:log4j-to-slf4j:2.26.0")
             library("commons-lang3", "org.apache.commons:commons-lang3:3.20.0")
             library("commons-text", "org.apache.commons:commons-text:1.15.0")
