@@ -1,7 +1,7 @@
 package de.janno.discord.bot.dice.image;
 
-import de.janno.discord.bot.dice.image.provider.D6MarvelV2;
 import de.janno.discord.bot.dice.image.provider.ImageProvider;
+import de.janno.discord.bot.dice.image.provider.RnRD6;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -13,12 +13,12 @@ import java.util.Map;
 
 public class CreateStyleOverviewImageUtil {
 
-    public static void main(String[] args) throws IOException {
-        //"black_and_red", "rainbow", "black_and_silver", "pink_and_silver", "yellow_and_brown", "purple_and_black", "blue_and_black"
-        for (String color : DiceImageStyle.d6_marvel_v2.getSupportedColors()) {
-            if (!color.equals("none")) {
-                ImageProvider imageProvider = new D6MarvelV2();
+    static void main() throws IOException {
 
+        ImageProvider imageProvider = new RnRD6();
+
+        for (String color : imageProvider.getSupportedColors()) {
+            if (!color.equals("none")) {
                 Map<Integer, List<Integer>> showDieFace = Map.of(6, List.of(1, 2, 3, 4, 5, 6));
                 int singleDiceSize = 100;
                 List<BufferedImage> images = showDieFace.entrySet().stream()
