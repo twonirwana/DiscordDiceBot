@@ -1,3 +1,83 @@
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_HeroQuest_de]=[
+  [
+    {
+      "name": "white",
+      "value": "white"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_HeroQuest_en]=[
+  [
+    {
+      "name": "white",
+      "value": "white"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_HeroQuest_fr]=[
+  [
+    {
+      "name": "white",
+      "value": "white"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_HeroQuest_pt_BR]=[
+  [
+    {
+      "name": "white",
+      "value": "white"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_RnR_de]=[
+  [
+    {
+      "name": "red",
+      "value": "red"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_RnR_en]=[
+  [
+    {
+      "name": "red",
+      "value": "red"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_RnR_fr]=[
+  [
+    {
+      "name": "red",
+      "value": "red"
+    }
+  ]
+]
+
+
+de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_RnR_pt_BR]=[
+  [
+    {
+      "name": "red",
+      "value": "red"
+    }
+  ]
+]
+
+
 de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_dots_de]=[
   [
     {
@@ -7,10 +87,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_d
     {
       "name": "schwarz_und_gold",
       "value": "black_and_gold"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -25,10 +101,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_d
     {
       "name": "black_and_gold",
       "value": "black_and_gold"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -43,10 +115,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_d
     {
       "name": "noir_et_or",
       "value": "black_and_gold"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -61,10 +129,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_d
     {
       "name": "preto_e_dourado",
       "value": "black_and_gold"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -79,10 +143,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_m
     {
       "name": "rot",
       "value": "red"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -97,10 +157,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_m
     {
       "name": "red",
       "value": "red"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -115,10 +171,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_m
     {
       "name": "rouge",
       "value": "red"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -133,10 +185,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_m
     {
       "name": "vermelho",
       "value": "red"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -151,10 +199,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_m
     {
       "name": "red",
       "value": "red"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -169,10 +213,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_m
     {
       "name": "red",
       "value": "red"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -187,10 +227,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_m
     {
       "name": "red",
       "value": "red"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -205,10 +241,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[d6_m
     {
       "name": "red",
       "value": "red"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -247,10 +279,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[expa
     {
       "name": "protogen_hell",
       "value": "protogen_light"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -289,10 +317,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[expa
     {
       "name": "protogen_light",
       "value": "protogen_light"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -331,10 +355,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[expa
     {
       "name": "protogen_clair",
       "value": "protogen_light"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -373,10 +393,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[expa
     {
       "name": "protogen_light",
       "value": "protogen_light"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -387,10 +403,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[fate
     {
       "name": "schwarz",
       "value": "black"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -401,10 +413,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[fate
     {
       "name": "black",
       "value": "black"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -415,10 +423,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[fate
     {
       "name": "noir",
       "value": "black"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -429,10 +433,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[fate
     {
       "name": "preto",
       "value": "black"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -527,10 +527,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[poly
     {
       "name": "indigo",
       "value": "indigo"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -585,10 +581,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[poly
     {
       "name": "indigo",
       "value": "indigo"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -643,10 +635,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[poly
     {
       "name": "indigo",
       "value": "indigo"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -701,10 +689,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[poly
     {
       "name": "azul_escuro",
       "value": "indigo"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -739,10 +723,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[poly
     {
       "name": "gelb_und_weiß",
       "value": "yellow_and_white"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -777,10 +757,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[poly
     {
       "name": "yellow_and_white",
       "value": "yellow_and_white"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -815,10 +791,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[poly
     {
       "name": "jaune_et_blanc",
       "value": "yellow_and_white"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -853,10 +825,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[poly
     {
       "name": "amarelo_e_branco",
       "value": "yellow_and_white"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -871,10 +839,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[poly
     {
       "name": "spezial",
       "value": "special"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -889,10 +853,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[poly
     {
       "name": "special",
       "value": "special"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -907,10 +867,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[poly
     {
       "name": "spécial",
       "value": "special"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -925,10 +881,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[poly
     {
       "name": "especial",
       "value": "special"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -939,10 +891,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[poly
     {
       "name": "schwarz_und_gold",
       "value": "black_and_gold"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -953,10 +901,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[poly
     {
       "name": "black_and_gold",
       "value": "black_and_gold"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -967,10 +911,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[poly
     {
       "name": "noir_et_or",
       "value": "black_and_gold"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -981,10 +921,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[poly
     {
       "name": "preto_e_dourado",
       "value": "black_and_gold"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -1047,10 +983,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[poly
     {
       "name": "blau_und_schwarz",
       "value": "blue_and_black"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -1113,10 +1045,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[poly
     {
       "name": "blue_and_black",
       "value": "blue_and_black"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -1179,10 +1107,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[poly
     {
       "name": "bleu_et_noir",
       "value": "blue_and_black"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -1245,10 +1169,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[poly
     {
       "name": "azul_e_preto",
       "value": "blue_and_black"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -1267,10 +1187,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[poly
     {
       "name": "blau",
       "value": "blue"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -1289,10 +1205,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[poly
     {
       "name": "blue",
       "value": "blue"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -1311,10 +1223,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[poly
     {
       "name": "bleu",
       "value": "blue"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]
@@ -1333,10 +1241,6 @@ de.janno.discord.bot.command.BaseCommandOptionsTest.autoCompleteColorOption[poly
     {
       "name": "azul",
       "value": "blue"
-    },
-    {
-      "name": "none",
-      "value": "none"
     }
   ]
 ]

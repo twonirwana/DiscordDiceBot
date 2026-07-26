@@ -19,6 +19,6 @@ public final class NoneProvider implements ImageProvider {
 
     @Override
     public @NonNull List<String> getSupportedColors() {
-        return List.of();
+        return List.of(DiceImageStyle.NONE_DICE_COLOR);
     }
 }

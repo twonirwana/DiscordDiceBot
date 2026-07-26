@@ -383,6 +383,22 @@ Valid for d6 and the supported color are: `red` and `white`.
 
 The dice image created by TheRedSoup
 
+==== Role & Roll
+
+image:image/RnRD6_red.png[image,600]
+
+Valid for d6 and the supported color are: `red`.
+
+The dice image created by ThChandee
+
+==== HeroQuest
+
+image:image/HeroQuestD6_white.png[image,600]
+
+Valid for d6 and the supported color are: `white`.
+
+The dice image created by Sibun@ and https://game-icons.net[game-icons.net]
+
 === Answer Interaction
 
 Answer interaction option allow to change/interact with the result of a roll.

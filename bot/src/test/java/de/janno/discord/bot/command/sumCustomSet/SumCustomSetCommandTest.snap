@@ -521,6 +521,16 @@ de.janno.discord.bot.command.sumCustomSet.SumCustomSetCommandTest.getCommandDefi
                 "nameLocales": [ ]
               },
               {
+                "name": "d6_RnR",
+                "value": "d6_RnR",
+                "nameLocales": [ ]
+              },
+              {
+                "name": "d6_HeroQuest",
+                "value": "d6_HeroQuest",
+                "nameLocales": [ ]
+              },
+              {
                 "name": "polyhedral_alies_v1",
                 "value": "polyhedral_alies_v1",
                 "nameLocales": [ ]
