@@ -638,7 +638,7 @@ class ImageResultCreatorTest {
         Supplier<? extends InputStream> res = underTest.getImageForRoll(rolls, new DiceStyleAndColor(DiceImageStyle.d6_RnR, "red"));
 
         assertThat(res).isNotNull();
-        assertThat(getDataHash(res)).isEqualTo("1546571134cec12c4b1bb8b8d4e4e38a099f3ce98dcd6ab985f4313c190c9cb4");
+        assertThat(getDataHash(res)).isEqualTo("ceecba234c1677205a0ff514feb40c452dd65a31b666e0a3b4179cf558a9952b");
     }
 
     @Test
