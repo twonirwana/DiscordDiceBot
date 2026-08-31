@@ -18,6 +18,7 @@ dependencies {
     implementation(libs.commons.text)
     implementation(libs.avaje.config)
     implementation(libs.avaje.slf4j)
+    implementation("com.squareup.okhttp3:logging-interceptor:5.1.0")
 
     compileOnly(libs.lombok)
     annotationProcessor(libs.lombok)
