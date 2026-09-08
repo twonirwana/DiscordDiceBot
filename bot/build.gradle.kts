@@ -20,7 +20,7 @@ dependencies {
     implementation(libs.avaje.slf4j)
     implementation(libs.emoji)
     implementation("io.micrometer:micrometer-registry-prometheus:1.17.1")
-    implementation("com.h2database:h2:2.4.240")
+    implementation("com.h2database:h2:2.5.250")
     implementation("org.apache.derby:derby:10.17.1.0")
     implementation("org.apache.derby:derbyclient:10.17.1.0")
     implementation("tools.jackson.dataformat:jackson-dataformat-yaml:3.2.2")
