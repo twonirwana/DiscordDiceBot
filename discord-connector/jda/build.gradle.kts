@@ -28,7 +28,7 @@ dependencies {
     testImplementation("io.github.origin-energy:java-snapshot-testing-junit5:4.0.8")
     testImplementation("io.github.origin-energy:java-snapshot-testing-plugin-jackson:4.0.8")
     testImplementation("tools.jackson.dataformat:jackson-dataformat-yaml:3.2.3")
-    testImplementation("org.mockito:mockito-core:5.23.0")
+    testImplementation("org.mockito:mockito-core:5.24.0")
     testImplementation("org.mockito:mockito-inline:5.2.0")
 }
 
