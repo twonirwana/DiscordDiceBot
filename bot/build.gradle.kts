@@ -24,9 +24,9 @@ dependencies {
     implementation("org.apache.derby:derby:10.17.1.0")
     implementation("org.apache.derby:derbyclient:10.17.1.0")
     implementation("tools.jackson.dataformat:jackson-dataformat-yaml:3.2.4")
-    implementation("org.apache.xmlgraphics:batik:1.19")
-    implementation("org.apache.xmlgraphics:batik-transcoder:1.19")
-    implementation("org.apache.xmlgraphics:batik-codec:1.19")
+    implementation("org.apache.xmlgraphics:batik:1.20")
+    implementation("org.apache.xmlgraphics:batik-transcoder:1.20")
+    implementation("org.apache.xmlgraphics:batik-codec:1.20")
 
     testImplementation("org.junit.jupiter:junit-jupiter:6.1.3")
     testImplementation("org.junit.jupiter:junit-jupiter-params:6.1.3")
