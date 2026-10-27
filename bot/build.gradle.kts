@@ -27,6 +27,7 @@ dependencies {
     implementation("org.apache.xmlgraphics:batik:1.20")
     implementation("org.apache.xmlgraphics:batik-transcoder:1.20")
     implementation("org.apache.xmlgraphics:batik-codec:1.20")
+    implementation("commons-io:commons-io:2.22.0")
 
     testImplementation("org.junit.jupiter:junit-jupiter:6.1.3")
     testImplementation("org.junit.jupiter:junit-jupiter-params:6.1.3")
