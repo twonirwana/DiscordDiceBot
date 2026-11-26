@@ -7,9 +7,10 @@ import io.micrometer.core.instrument.binder.okhttp3.OkHttpConnectionPoolMetrics;
 import io.micrometer.core.instrument.binder.okhttp3.OkHttpMetricsEventListener;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
+import okhttp3.ConnectionPool;
 import okhttp3.EventListener;
-import okhttp3.OkHttpClient;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -24,8 +25,8 @@ public class JdaMetrics {
     private static final String USER_LOCALE = "userLocale";
     private static final String SHARD_ID = "shardId";
 
-    public static void registerHttpClient(OkHttpClient client) {
-        new OkHttpConnectionPoolMetrics(client.connectionPool()).bindTo(globalRegistry);
+    public static void registerHttpClientConnectionPool(ConnectionPool connectionPool, int maxIdleConnections) {
+        new OkHttpConnectionPoolMetrics(connectionPool, "okhttp.pool", List.of(), maxIdleConnections).bindTo(globalRegistry);
     }
 
     public static void startGuildCountGauge(Set<Long> botInGuildIdSet) {
